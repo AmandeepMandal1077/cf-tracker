@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
 }
 
 datasource db {
@@ -7,19 +8,32 @@ datasource db {
 }
 
 model User {
-  id               String    @id
-  email            String    @unique
-  isSubscribed     Boolean   @default(false)
+  id               String          @id
+  email            String          @unique
+  userHandle       String?
+  isSubscribed     Boolean         @default(false)
   subscriptionEnds DateTime?
-  todos            Todo[]
+  userQuestions    UserQuestions[]
 }
 
-model Todo {
-  id        String   @id @default(cuid())
-  title     String
-  completed Boolean  @default(false)
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+model UserQuestions {
+  userId     String
+  verdict    String
+  bookmarked Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+  questionId String
+  question   QuestionBank @relation(fields: [questionId], references: [id])
+  user       User         @relation(fields: [userId], references: [id])
+
+  @@id([userId, questionId])
+}
+
+model QuestionBank {
+  id            String          @id
+  platform      String
+  name          String
+  link          String          @unique
+  rating        Int?
+  tags          String[]        @default([])
+  userQuestions UserQuestions[]
 }
