@@ -32,15 +32,15 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" className="scroll-smooth">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950`}
         >
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
+          <header className="flex justify-end items-center px-8 py-4 gap-4 h-16 bg-slate-950/50 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
             <SignedOut>
               <SignInButton />
               <SignUpButton>
-                <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
+                <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm sm:text-base h-10 sm:h-10 px-4 sm:px-5 cursor-pointer transition-colors">
                   Sign Up
                 </button>
               </SignUpButton>

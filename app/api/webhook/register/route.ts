@@ -3,6 +3,7 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { Webhook } from "svix";
 
+//TODO: Add questions related to User
 export async function POST(req: Request) {
   console.log("=== Webhook POST request received ===");
 
@@ -84,6 +85,7 @@ export async function POST(req: Request) {
           id: id,
           email: email.email_address,
           isSubscribed: false,
+          userHandle: "",
         },
       });
 
