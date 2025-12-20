@@ -49,6 +49,6 @@ export interface CodeforcesProblem {
   statement: string;
   inputStatement: string;
   outputStatement: string;
-  inputTests: string[];
-  outputTests: string[];
+  examples: string;
+  note: string;
 }

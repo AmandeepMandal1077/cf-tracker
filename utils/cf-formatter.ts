@@ -43,5 +43,5 @@ export function codeforcesDescriptionFormat(rawString: string) {
     cursor = end + MATH_DELIM.length;
   }
 
-  return body.length ? `<p>${body}</p>` : "";
+  return body.length ? `<span>${body}</span>` : "";
 }

@@ -1,134 +1,104 @@
 import prisma from "@/lib/prisma";
+import { CodeforcesProblem } from "@/types";
 import { codeforcesDescriptionFormat } from "@/utils/cf-formatter";
 import { auth } from "@clerk/nextjs/server";
 
-// import puppeteer from "puppeteer-extra";
 import puppeteer from "puppeteer";
+// import puppeteer from "puppeteer-extra";
 // import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
 // puppeteer.use(StealthPlugin());
 
 const scrape = async (url: string) => {
+  console.log("called");
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
 
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+  await page.setJavaScriptEnabled(false);
+  await page.goto(url, { waitUntil: "networkidle2" });
 
-  // Do not reference server-side code inside page.evaluate
-  const raw = await page.evaluate(() => {
-    const getTextContent = (elements: NodeListOf<Element>) => {
-      const parts: string[] = [];
-      elements.forEach((p) => {
-        p.childNodes.forEach((node) => {
-          if (node.nodeType === Node.TEXT_NODE) {
-            const text = (node.textContent || "").trim();
-            if (text) parts.push(text);
-          } else if (
-            node.nodeType === Node.ELEMENT_NODE &&
-            (node as HTMLElement).tagName === "SCRIPT"
-          ) {
-            const el = node as HTMLScriptElement;
-            const inner = (el.innerHTML || "").trim();
-            const type = (el.getAttribute("type") || "").toLowerCase();
-            if (type.startsWith("math/tex")) {
-              const isDisplay = type.includes("mode=display");
-              // Wrap MathJax content so remark-math can detect it
-              parts.push(isDisplay ? `$$${inner}$$` : `$${inner}$`);
-            }
-          } else if (node.nodeType === Node.ELEMENT_NODE) {
-            // For inline elements that may hold pure text (e.g., <span>) pick their text
-            const text = (node.textContent || "").trim();
-            if (text) parts.push(text);
-          }
-        });
-        parts.push("\n");
-      });
+  await page.waitForSelector(".problem-statement", { timeout: 30000 });
 
-      // Join with single spaces to keep words separated
-      return parts.join(" ");
-    };
-
-    const titleEl = document.querySelector(".title");
-    const title = titleEl ? (titleEl as HTMLElement).innerHTML : "";
-
-    const timeLimitEl = document.querySelector(".time-limit");
-    const timeLimit =
-      timeLimitEl && timeLimitEl.childNodes[1]
-        ? (timeLimitEl.childNodes[1].textContent || "").trim()
-        : "";
-
-    const memoryLimitEl = document.querySelector(".memory-limit");
-    const memoryLimit =
-      memoryLimitEl && memoryLimitEl.childNodes[1]
-        ? (memoryLimitEl.childNodes[1].textContent || "").trim()
-        : "";
-
-    const problemSpecification = document.querySelectorAll(
-      ".problem-statement > :nth-child(2) p"
+  const result = await page.evaluate(() => {
+    const problem = document.querySelector(".problem-statement");
+    if (!problem) throw new Error("Problem statement not found");
+    const fullStatement = Array.from(problem.children).map(
+      (child) => (child as HTMLElement).innerText
     );
-    const problemStatement = getTextContent(problemSpecification);
-
-    const inputSpecification = document.querySelectorAll(
-      ".input-specification p"
-    );
-    const inputStatement = getTextContent(inputSpecification);
-
-    const outputSpecification = document.querySelectorAll(
-      ".output-specification p"
-    );
-    const outputStatement = getTextContent(outputSpecification);
-
-    const inputTestSpecification = document.querySelectorAll(".input pre div");
-    const outputTestSpecification =
-      document.querySelectorAll(".output pre div");
-
-    const inputTests: string[] = [];
-    inputTestSpecification.forEach((test) => {
-      inputTests.push((test.textContent || "").trim());
-      inputTests.push("\n");
-    });
-
-    const outputTests: string[] = [];
-    outputTestSpecification.forEach((test) => {
-      outputTests.push((test.textContent || "").trim());
-      outputTests.push("\n");
-    });
-
-    return {
-      titleRaw: title,
-      timeLimit,
-      memoryLimit,
-      problemStatementRaw: problemStatement,
-      inputStatementRaw: inputStatement,
-      outputStatementRaw: outputStatement,
-      inputTests: inputTests.join(""),
-      outputTests: outputTests.join(""),
-    };
+    return fullStatement;
   });
 
+  if (!result || result.length < 4) {
+    throw new Error(
+      `Unexpected DOM structure: got ${
+        result?.length || 0
+      } elements instead of at least 4`
+    );
+  }
+
+  if (result[4]) {
+    result[4] = result[4]
+      .replaceAll("input\nCopy", "input\n")
+      .replaceAll("output\nCopy", "output\n");
+  }
+
+  let [metadata, problem, input, output, examples, note] = result;
+
+  if (!metadata) {
+    throw new Error("Metadata element not found");
+  }
+
+  let [title, timeLimit, memoryLimit] = metadata.split("\n");
+  timeLimit = timeLimit?.replace("time limit per test", "").trim() || "";
+  memoryLimit = memoryLimit?.replace("memory limit per test", "").trim() || "";
+
+  input = input?.replace("Input", "").trim() || "";
+  output = output?.replace("Output", "").trim() || "";
+  examples = examples?.replace("Example\n", "").trim() || "";
+  examples = examples?.replace("Examples\n", "").trim() || "";
+  note = note?.replace("Note\n", "").trim() || "";
+
+  const obj: CodeforcesProblem = {
+    title,
+    timeLimit,
+    memoryLimit,
+    statement: problem,
+    inputStatement: input,
+    outputStatement: output,
+    examples,
+    note,
+  };
+
+  for (const key in obj) {
+    const typedKey = key as keyof CodeforcesProblem;
+    if (obj[typedKey]) {
+      obj[typedKey] = obj[typedKey]!.trim();
+      obj[typedKey] = obj[typedKey]!.replaceAll("\n\n", "\n");
+    }
+  }
+
+  await page.close();
   await browser.close();
 
   // Apply formatting on the server side
   const problemDetails = {
-    titleRaw: raw.titleRaw,
-    titleFormatted: await codeforcesDescriptionFormat(raw.titleRaw),
-    timeLimit: raw.timeLimit,
-    memoryLimit: raw.memoryLimit,
-    problemStatementRaw: raw.problemStatementRaw,
-    problemStatementFormatted: await codeforcesDescriptionFormat(
-      raw.problemStatementRaw
-    ),
-    inputStatementRaw: raw.inputStatementRaw,
-    inputStatementFormatted: await codeforcesDescriptionFormat(
-      raw.inputStatementRaw
-    ),
-    outputStatementRaw: raw.outputStatementRaw,
-    outputStatementFormatted: await codeforcesDescriptionFormat(
-      raw.outputStatementRaw
-    ),
-    inputTests: codeforcesDescriptionFormat(raw.inputTests),
-    outputTests: codeforcesDescriptionFormat(raw.outputTests),
+    titleRaw: obj.title,
+    titleFormatted: codeforcesDescriptionFormat(obj.title),
+    timeLimit: obj.timeLimit,
+    memoryLimit: obj.memoryLimit,
+    problemStatementRaw: obj.statement,
+    problemStatementFormatted: codeforcesDescriptionFormat(obj.statement),
+    inputStatementRaw: obj.inputStatement,
+    inputStatementFormatted: codeforcesDescriptionFormat(obj.inputStatement),
+    outputStatementRaw: obj.outputStatement,
+    outputStatementFormatted: codeforcesDescriptionFormat(obj.outputStatement),
+    examplesRaw: obj.examples,
+    examplesFormatted: codeforcesDescriptionFormat(obj.examples),
+    noteRaw: obj.note,
+    noteFormatted: codeforcesDescriptionFormat(obj.note),
   };
 
+  console.log(problemDetails);
   return problemDetails;
 };
 

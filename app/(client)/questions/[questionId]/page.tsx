@@ -133,12 +133,16 @@ export default function QuestionPage() {
   useEffect(() => {
     async function getQuestion() {
       try {
+        console.log("nice");
+
         const res = await axios.get(`/api/questions/${questionId}`);
+        console.log("OK");
+
         if (res.status != 200) {
           throw new Error(`Error getting question details: ${questionId}`);
         }
 
-        console.log("Hello world");
+        // console.log("Hello world");
         setQuestion(res.data.question);
 
         const rawString = res.data.question.question.problemStatement;
@@ -151,8 +155,8 @@ export default function QuestionPage() {
           statement: problemStatement.problemStatementFormatted,
           inputStatement: problemStatement.inputStatementFormatted,
           outputStatement: problemStatement.outputStatementFormatted,
-          inputTests: problemStatement.inputTests,
-          outputTests: problemStatement.outputTests,
+          examples: problemStatement.examplesFormatted,
+          note: problemStatement.noteFormatted,
         };
         const problemRaw: CodeforcesProblem = {
           title: problemStatement.titleRaw,
@@ -161,8 +165,8 @@ export default function QuestionPage() {
           statement: problemStatement.problemStatementRaw,
           inputStatement: problemStatement.inputStatementRaw,
           outputStatement: problemStatement.outputStatementRaw,
-          inputTests: problemStatement.inputTests,
-          outputTests: problemStatement.outputTests,
+          examples: problemStatement.examplesRaw,
+          note: problemStatement.noteRaw,
         };
 
         setFormattedProblemStatement(problemFormatted);
@@ -450,77 +454,138 @@ export default function QuestionPage() {
           <div className="w-full px-4 sm:px-8">
             <Card className="overflow-hidden border-white/10 bg-neutral-950 text-white shadow-none">
               <CardHeader className="border-b border-white/10">
-                <CardTitle className="text-2xl text-white font-semibold">
-                  Problem Statement
-                </CardTitle>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <CardTitle className="text-2xl text-white font-semibold">
+                    Description
+                  </CardTitle>
+                  {formattedProblemStatement && (
+                    <div className="flex items-center gap-4 text-sm">
+                      <Badge
+                        variant="outline"
+                        className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-md"
+                      >
+                        Time-Limit: {formattedProblemStatement.timeLimit}
+                      </Badge>
+                      <Badge
+                        variant="outline"
+                        className="bg-purple-500/10 text-purple-400 border-purple-500/20 text-md"
+                      >
+                        Memory-Limit: {formattedProblemStatement.memoryLimit}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="text-neutral-300 space-y-4 leading-relaxed">
+                <div className="text-neutral-300 space-y-8 leading-relaxed">
                   {formattedProblemStatement ? (
                     <>
-                      <h2>Title</h2>
-                      <div
-                        className="prose"
-                        dangerouslySetInnerHTML={{
-                          __html: formattedProblemStatement.title,
-                        }}
-                      />
+                      {/* Problem Statement Section */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 pb-2">
+                          <div className="h-1 w-6 bg-emerald-500/50 rounded-full" />
+                          <h3 className="text-lg font-semibold text-white uppercase tracking-wide">
+                            Problem Statement
+                          </h3>
+                        </div>
+                        <div
+                          className="prose prose-invert max-w-none pl-4 border-l-2 border-white/10"
+                          dangerouslySetInnerHTML={{
+                            __html: formattedProblemStatement.statement || "",
+                          }}
+                        />
+                      </div>
 
-                      <h3>Time Limit</h3>
-                      <p>{formattedProblemStatement.timeLimit}</p>
+                      <Separator className="bg-white/10" />
 
-                      <h3>Memory Limit</h3>
-                      <p>{formattedProblemStatement.memoryLimit}</p>
+                      {/* Input Statement Section */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 pb-2">
+                          <div className="h-1 w-6 bg-blue-500/50 rounded-full" />
+                          <h3 className="text-lg font-semibold text-white uppercase tracking-wide">
+                            Input
+                          </h3>
+                        </div>
+                        <div
+                          className="prose prose-invert max-w-none pl-4 border-l-2 border-white/10"
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              formattedProblemStatement.inputStatement || "",
+                          }}
+                        />
+                      </div>
 
-                      <h3>Problem Statement</h3>
-                      <div
-                        className="prose prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: formattedProblemStatement.statement || "",
-                        }}
-                      />
-                      {/* <div>{rawProblemStatement?.statement}</div> */}
+                      <Separator className="bg-white/10" />
 
-                      <h3>Input Statement</h3>
-                      <div
-                        className="prose prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            formattedProblemStatement.inputStatement || "",
-                        }}
-                      />
+                      {/* Output Statement Section */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 pb-2">
+                          <div className="h-1 w-6 bg-amber-500/50 rounded-full" />
+                          <h3 className="text-lg font-semibold text-white uppercase tracking-wide">
+                            Output
+                          </h3>
+                        </div>
+                        <div
+                          className="prose prose-invert max-w-none pl-4 border-l-2 border-white/10"
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              formattedProblemStatement.outputStatement || "",
+                          }}
+                        />
+                      </div>
 
-                      <h3>Output Statement</h3>
-                      <div
-                        className="prose prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html:
-                            formattedProblemStatement.outputStatement || "",
-                        }}
-                      />
+                      <Separator className="bg-white/10" />
 
-                      <h3>Input Tests</h3>
-                      <div
-                        className="prose prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: formattedProblemStatement.inputTests || "",
-                        }}
-                      />
+                      {/* Examples Section */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 pb-2">
+                          <div className="h-1 w-6 bg-purple-500/50 rounded-full" />
+                          <h3 className="text-lg font-semibold text-white uppercase tracking-wide">
+                            Examples
+                          </h3>
+                        </div>
+                        <div
+                          className="prose prose-invert max-w-none pl-4"
+                          dangerouslySetInnerHTML={{
+                            __html: formattedProblemStatement.examples || "",
+                          }}
+                        />
+                      </div>
 
-                      <h3>Output Tests</h3>
-                      <div
-                        className="prose prose-invert max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: formattedProblemStatement.outputTests || "",
-                        }}
-                      />
+                      {/* Note Section */}
+                      {formattedProblemStatement.note && (
+                        <>
+                          <Separator className="bg-white/10" />
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2 pb-2">
+                              <div className="h-1 w-6 bg-rose-500/50 rounded-full" />
+                              <h3 className="text-lg font-semibold text-white uppercase tracking-wide">
+                                Note
+                              </h3>
+                            </div>
+                            <div
+                              className="prose prose-invert max-w-none pl-4 border-l-2 border-white/10"
+                              dangerouslySetInnerHTML={{
+                                __html: formattedProblemStatement.note || "",
+                              }}
+                            />
+                          </div>
+                        </>
+                      )}
                     </>
                   ) : (
                     <p>Loading problem details</p>
                   )}
 
-                  {/* <p>{JSON.stringify(formattedProblemStatement)}</p>
-                  <p>{JSON.stringify(rawProblemStatement)}</p> */}
+                  {/* Debug info - can be removed in production */}
+                  {/* <div>
+                    RAW:
+                    <div>
+                      <pre className="whitespace-pre-wrap wrap-break-word text-sm text-neutral-400">
+                        {JSON.stringify(rawProblemStatement)}
+                      </pre>
+                    </div>
+                  </div> */}
                 </div>
               </CardContent>
             </Card>
