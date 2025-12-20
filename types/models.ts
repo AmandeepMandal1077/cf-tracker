@@ -39,4 +39,16 @@ export interface Question {
   userId: string;
   bookmarked?: boolean;
   questionId?: string;
+  problemStatement?: string;
+}
+
+export interface CodeforcesProblem {
+  title: string;
+  timeLimit: string;
+  memoryLimit: string;
+  statement: string;
+  inputStatement: string;
+  outputStatement: string;
+  inputTests: string[];
+  outputTests: string[];
 }

@@ -47,10 +47,16 @@ export async function POST(req: Request) {
         faultySubsData.push(obj);
       } else {
         try {
-          await prisma.userQuestions.delete({
-            where: { userId_questionId: { userId, questionId: problemId } },
+          await prisma.userQuestions.deleteMany({
+            where: {
+              userId,
+              questionId: problemId,
+              bookmarked: false,
+            },
           });
-        } catch (err) {}
+        } catch (err) {
+          console.warn(`Error deleting question record for ${problemId}:`, err);
+        }
       }
     });
 

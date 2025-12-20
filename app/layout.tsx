@@ -8,7 +8,9 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Button } from "@/components/ui/button";
 import "./globals.css";
+import "katex/dist/katex.min.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,20 +36,31 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="scroll-smooth">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
         >
-          <header className="flex justify-end items-center px-8 py-4 gap-4 h-16 bg-slate-950/50 backdrop-blur-xl border-b border-white/10 sticky top-0 z-50">
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm sm:text-base h-10 sm:h-10 px-4 sm:px-5 cursor-pointer transition-colors">
-                  Sign Up
-                </button>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
+          <header className="sticky top-0 z-50 bg-black border-b border-white/10">
+            <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-end gap-3 px-4 sm:px-8">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <Button
+                    variant="outline"
+                    className="border-white/10 hover:border-white/20"
+                  >
+                    Sign in
+                  </Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button className="bg-white/90 text-black hover:bg-white">
+                    Sign up
+                  </Button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton
+                  appearance={{ variables: { colorBackground: "#000" } }}
+                />
+              </SignedIn>
+            </div>
           </header>
           {children}
         </body>

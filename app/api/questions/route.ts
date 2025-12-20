@@ -1,9 +1,8 @@
 import prisma from "@/lib/prisma";
-import { Question } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest } from "next/server";
 
-const MAX_PER_PAGE_QUESTION = 10;
+const MAX_PER_PAGE_QUESTION = 20;
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
 
@@ -28,7 +27,7 @@ export async function GET(req: NextRequest) {
     console.error("Error fetching questions:", err);
     return new Response("Internal Server Error", { status: 500 });
   }
-  return new Response(JSON.stringify(questions), {
+  return new Response(JSON.stringify({ questions }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
