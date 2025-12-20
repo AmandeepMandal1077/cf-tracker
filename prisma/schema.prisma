@@ -10,7 +10,7 @@ datasource db {
 model User {
   id               String          @id
   email            String          @unique
-  userHandle       String?
+  userHandle       String
   isSubscribed     Boolean         @default(false)
   subscriptionEnds DateTime?
   userQuestions    UserQuestions[]
@@ -29,11 +29,12 @@ model UserQuestions {
 }
 
 model QuestionBank {
-  id            String          @id
-  platform      String
-  name          String
-  link          String          @unique
-  rating        Int?
-  tags          String[]        @default([])
-  userQuestions UserQuestions[]
+  id               String          @id
+  platform         String
+  name             String
+  link             String          @unique
+  rating           Int?
+  tags             String[]        @default([])
+  problemStatement String?
+  userQuestions    UserQuestions[]
 }

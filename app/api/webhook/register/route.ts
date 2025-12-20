@@ -80,12 +80,17 @@ export async function POST(req: Request) {
       // Store the email and emailId in your database
       console.log("Creating user with email:", email.email_address, "ID:", id);
 
+      const userHandle = event.data.unsafe_metadata?.userHandle as string;
+      if (!userHandle) {
+        console.error("No user handle found in unsafe metadata");
+        return new Response("No user handle found", { status: 400 });
+      }
       const newUser = await prisma.user.create({
         data: {
           id: id,
           email: email.email_address,
           isSubscribed: false,
-          userHandle: "",
+          userHandle: userHandle,
         },
       });
 

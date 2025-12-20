@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { fetchQuestionDetailsViaURL } from "@/lib/req-cf";
 import { auth } from "@clerk/nextjs/server";
 
-export async function POST(req: Request) {
+export async function PUT(req: Request) {
   const { userId } = await auth();
 
   if (!userId) {
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     if (!problemDetails) {
       return new Response("Invalid Question URL", { status: 400 });
     }
-    const problemId = problemDetails.contestId + problemDetails.index;
+    const problemId = problemDetails.contestId + "_" + problemDetails.index;
     let question;
     try {
       question = await prisma.userQuestions.create({
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
         },
       });
     } catch (err) {
-      return new Response(`Already existed Question: ${err}`, { status: 500 });
+      return new Response(`Already existed Question: ${err}`, { status: 406 });
     }
     return new Response(JSON.stringify(question), { status: 200 });
   } catch (err) {
