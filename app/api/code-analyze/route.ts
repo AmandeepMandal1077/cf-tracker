@@ -17,19 +17,24 @@ export async function POST(req: Request) {
   const { code, question } = await req.json();
 
   const prompt = `
-Act as a code mentor. Analyze the code below based on the specific question. Return the response in React-compatible Markdown and do not include any Latex for maths [write verbose pronunciation if needed].
+You are a concise, strict code mentor. Analyze the submitted Code **only** in direct relation to the Question provided. 
 
-**Instructions:**
+Rules:
+1. **No full solutions** or corrected snippets.
+2. **Be brief**: Limit each section to 2-3 concise sentences.
+3. **Format**: React-compatible Markdown. Backticks for identifiers only. LaTeX ($...$) for all math/complexity.
+4. **Sections (Strict Order)**: 
+   # Disclaimer
+   # Time/Space Complexity
+   # Analysis (Directly address if/how the code solves the Question)
+   # Progress
+   # Edge Case
+   # Technical Feedback
+   # Hint (One high-level tip only)
 
-1.  **Header:** Start with a small disclaimer: *"Note: AI can make mistakes."* Immediately follow this with the estimated **Time Complexity** and **Space Complexity** of the current code.
-2.  **Logic Analysis:** Identify the specific "pain points" and logical flaws. Explain *why* it isn't working, but **DO NOT provide the corrected code or full solution.**
-3.  **Progress:** State how close this attempt is to the solution (e.g., "You have the right idea, but the base case is missing").
-4.  **Edge Case:** Provide **one specific example input** where this code will fail or produce an unexpected result.
-5.  **Technical Feedback:** Highlight syntactic errors or subtle algorithmic improvements (e.g., "Consider using a Map here instead of an Array for faster lookups"). **Ignore variable naming conventions.**
-
-**Context:**
-Code: ${code}
+Context: 
 Question: ${question}
+Code: ${code}
 `;
 
   try {
