@@ -1,6 +1,9 @@
 import prisma from "@/lib/prisma";
 import { CodeforcesProblem } from "@/types";
-import { codeforcesDescriptionFormat } from "@/utils/cf-formatter";
+import {
+  codeforcesDescriptionFormat,
+  codeforcesInputFormat,
+} from "@/utils/cf-formatter";
 import { auth } from "@clerk/nextjs/server";
 
 import puppeteer from "puppeteer";
@@ -10,14 +13,14 @@ import puppeteer from "puppeteer";
 // puppeteer.use(StealthPlugin());
 
 const scrape = async (url: string) => {
-  console.log("called");
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
 
   await page.setJavaScriptEnabled(false);
-  await page.goto(url, { waitUntil: "networkidle2" });
+  // await page.goto(url, { waitUntil: "networkidle2" });
+  await page.goto(url, { waitUntil: "domcontentloaded" });
 
-  await page.waitForSelector(".problem-statement", { timeout: 30000 });
+  await page.waitForSelector(".problem-statement");
 
   const result = await page.evaluate(() => {
     const problem = document.querySelector(".problem-statement");
@@ -93,7 +96,7 @@ const scrape = async (url: string) => {
     outputStatementRaw: obj.outputStatement,
     outputStatementFormatted: codeforcesDescriptionFormat(obj.outputStatement),
     examplesRaw: obj.examples,
-    examplesFormatted: codeforcesDescriptionFormat(obj.examples),
+    examplesFormatted: codeforcesInputFormat(obj.examples),
     noteRaw: obj.note,
     noteFormatted: codeforcesDescriptionFormat(obj.note),
   };
