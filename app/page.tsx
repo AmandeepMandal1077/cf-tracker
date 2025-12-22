@@ -20,12 +20,6 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               asChild
-              className="flex-1 bg-white/90 text-black hover:bg-white"
-            >
-              <Link href="/sign-in">Sign in</Link>
-            </Button>
-            <Button
-              asChild
               variant="outline"
               className="flex-1 border-white/10 hover:border-white/20"
             >

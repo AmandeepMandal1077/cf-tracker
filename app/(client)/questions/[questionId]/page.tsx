@@ -30,52 +30,6 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
-const content1 = `
-Lorem ipsum dolor sit amet consectetur adipisicing elit. Nesciunt delectus voluptatibus id, facilis at magnam! Rem dolorum doloribus voluptate esse. Eius quos dignissimos molestias recusandae dolores qui quis rem perspiciatis?
-Sunt dignissimos sint incidunt ea tempora veniam obcaecati ullam enim explicabo quae quibusdam, illo perspiciatis, pariatur illum provident reprehenderit, qui adipisci cupiditate doloremque. Fugit facilis autem, distinctio numquam blanditiis quidem?
-Amet, velit ipsum, nesciunt qui est odio aperiam repudiandae quae labore eum quasi reiciendis alias at explicabo cum architecto? Quisquam tenetur porro ipsa harum laudantium adipisci deleniti dolorum voluptas iusto.
-Unde, repellendus tempore. Deserunt distinctio esse modi corporis et aut mollitia illum laudantium adipisci, animi nihil rerum repudiandae labore velit, vitae ipsum unde! Ratione dolor laboriosam velit tempora. Odio, dolores.
-Quam voluptatibus quaerat praesentium mollitia aperiam impedit minima dignissimos ullam repudiandae, illum dolorum a animi at facilis laboriosam necessitatibus unde sit quo in? Id, rerum error dolor magni temporibus asperiores.
-Earum eligendi fuga inventore fugit aliquam quam repudiandae molestiae, doloremque ab iste veniam, dicta temporibus aut, quas modi eius. Aspernatur corporis ut quisquam officia ad obcaecati animi dicta facere eveniet.
-In ipsum at laudantium, itaque quisquam neque nesciunt ut error inventore ratione et id minus sed? Alias minus dicta minima, quos recusandae eos autem deserunt exercitationem nulla suscipit nihil voluptatum!
-Soluta est fuga officia suscipit cumque iure, iste accusantium. Deserunt sequi reprehenderit similique voluptatem officia ad, consequatur quia id nulla temporibus doloribus distinctio delectus vitae ut, enim quod necessitatibus esse?
-Asperiores esse placeat reprehenderit delectus? Incidunt sunt atque dolorum nobis aspernatur vitae at laudantium provident accusantium quae iste aperiam rem corrupti, vero corporis dolore natus exercitationem tempora deserunt veritatis sapiente?
-Porro similique optio quasi! Possimus amet dolor asperiores blanditiis adipisci aut laudantium enim sit esse placeat ab dicta, voluptate veritatis dolore repellendus architecto saepe quaerat mollitia quos cumque voluptatibus? Expedita.
-Quia itaque consequuntur repellendus molestias cupiditate soluta ipsam deserunt provident hic in dignissimos perferendis aut veniam voluptatibus vel neque voluptatum, alias corporis similique quasi fugiat consectetur ducimus! Ipsa, voluptates dolorem!
-Asperiores doloremque necessitatibus aut libero quaerat delectus, id itaque velit quam minus voluptas esse! Magni consectetur, quas pariatur animi praesentium laborum magnam recusandae harum non perferendis autem tempore, quod minima.
-Totam, maxime consectetur eius architecto, minus quo reprehenderit odio eveniet earum veniam saepe unde voluptas nobis atque magni? Pariatur vel ipsa deserunt error et. Totam pariatur eius cum explicabo officiis!
-Labore quidem fuga et ea temporibus. Debitis accusantium blanditiis eos at cumque deserunt commodi eveniet minima sed nemo consequuntur laboriosam recusandae magnam, et distinctio, repudiandae magni id, dolor ea repellendus?
-Id architecto eos cumque molestiae enim repellat, magnam veniam fuga. Quibusdam temporibus ut quam facilis ipsum quo praesentium, laboriosam exercitationem, ad explicabo ipsam impedit tempore suscipit perferendis fugit qui vel.
-Rem minima odio, atque, nobis beatae amet natus at corporis debitis ipsa itaque esse. Magni vero necessitatibus culpa non neque eaque eos tempora repudiandae alias quidem est, nihil voluptatem ab.
-Aperiam quidem nisi cupiditate. Sed accusamus reiciendis tempora architecto voluptatibus ipsam voluptates doloremque ducimus. Perferendis ea voluptatibus similique culpa, numquam autem fuga corrupti facere deleniti exercitationem quae? Sint, illum accusantium.
-Labore provident ab quod voluptatibus quaerat possimus ipsum praesentium placeat voluptatum, sunt quo, accusantium nemo expedita tenetur eaque fugit modi, eum voluptate! Repellendus dolorem eum aliquid vero sapiente odio ut?
-Quia deserunt accusamus odit nesciunt delectus ut, impedit velit numquam itaque nemo iusto. Incidunt, eaque quod! Laudantium officia necessitatibus nobis numquam repellat reiciendis optio molestiae nemo, expedita quo commodi ea?
-Est dolore fugit perferendis, possimus, eligendi voluptas impedit, dolor illo necessitatibus accusantium at? Veniam sunt fuga eveniet accusamus repellendus esse aperiam voluptatem omnis, labore, voluptatibus consequatur odit possimus adipisci quisquam.
-`;
-
-const content2 = `
-AI Analysis Result: # Disclaimer
-The provided code addresses a graph traversal and cost calculation problem, which is distinct from the "Maximum modulo equality" problem described in the Question. It processes nodes, edges, and groups within a tree structure, not an array of numbers with range queries.
-
-# Time/Space Complexity
-The code's \`interactionCosts\` function iterates up to $N$ times, with each iteration potentially calling \`dfs\`. The \`dfs\` function explores a tree (implied by $N-1$ edges for $N$ nodes) and performs map operations. In the worst case, \`dfs\` runs $O(N)$ times, each taking $O(N \log N)$ time due to map insertions/lookups with keys up to $N$. Thus, the overall time complexity is $O(N^2 \log N)$. The space complexity is $O(N)$ for the adjacency list, \`group\` array, \`dn\` map, and \`dp\` map.
-
-# Analysis
-The code's structure, variable names like \`adj\`, \`edges\`, \`group\`, and the use of \`dfs\`, explicitly indicate it operates on a graph data structure to calculate some form of "interaction costs" related to groups. This bears no resemblance to finding a maximum $m$ for array elements within a given range $(l, r)$ based on modulo equality, which typically involves GCD and range query techniques.
-
-# Progress
-Zero progress has been made towards solving the "Maximum modulo equality" problem. The problem domains are entirely different; the provided code is attempting to solve a different problem entirely.     
-
-# Edge Case
-The code's logic is disconnected from the problem's requirements, thus it cannot correctly handle any edge cases specified in the Question, such as queries for single-element ranges ($l=r$) or ranges where all elements are identical.
-
-# Technical Feedback
-The provided code is fundamentally misaligned with the problem statement. It initializes graph-related data structures (\`adj\`), performs a depth-first search (\`dfs\`), and uses \`group\` information, none of which are relevant to the array-based modulo equality problem. The function signatures and variable semantics (\`n\`, \`edges\`, \`group\` vs. \`a\`, \`l\`, \`r\`) are completely different.
-
-# Hint
-Consider how the condition $a_i \bmod m = a_j \bmod m$ translates into properties of $m$ concerning the differences $|a_i - a_j|$.
-`;
-
 export default function QuestionPage() {
   const params = useParams();
   const router = useRouter();
@@ -643,7 +597,6 @@ export default function QuestionPage() {
                             }}
                           >
                             {codeAnalysis ||
-                              content2 ||
                               "Paste your code and click Analyze to see suggestions here."}
                           </Markdown>
                         </div>
