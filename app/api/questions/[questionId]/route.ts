@@ -13,22 +13,59 @@ import puppeteer from "puppeteer";
 // puppeteer.use(StealthPlugin());
 
 const scrape = async (url: string) => {
-  const browser = await puppeteer.launch({ headless: false });
-  const page = await browser.newPage();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
+  });
 
-  await page.setJavaScriptEnabled(false);
-  // await page.goto(url, { waitUntil: "networkidle2" });
-  await page.goto(url, { waitUntil: "domcontentloaded" });
+  const page = await browser.newPage();
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
+  );
+
+  // await page.setJavaScriptEnabled(false);
+  await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => false });
+  });
+
+  await page.goto(url, { waitUntil: ["domcontentloaded", "networkidle2"] });
 
   await page.waitForSelector(".problem-statement");
 
   const result = await page.evaluate(() => {
     const problem = document.querySelector(".problem-statement");
     if (!problem) throw new Error("Problem statement not found");
-    const fullStatement = Array.from(problem.children).map(
-      (child) => (child as HTMLElement).innerText
-    );
+    const fullStatement = Array.from(problem.children).map((child, index) => {
+      child.querySelectorAll(".upper-index").forEach((el) => {
+        el.replaceWith(
+          document.createTextNode("$$$^" + el.textContent + "$$$")
+        );
+      });
+
+      child.querySelectorAll(".lower-index").forEach((el) => {
+        el.replaceWith(
+          document.createTextNode("$$$_" + el.textContent + "$$$")
+        );
+      });
+
+      child.querySelectorAll("img").forEach((el) => {
+        el.classList.add("bg-white");
+      });
+
+      if (index == 1 || index == 5) {
+        // const statement = traverse(child);
+        child
+          .querySelectorAll(".MathJax, .MathJax_Preview, .section-title")
+          .forEach((el) => el.remove());
+        return child.innerHTML;
+      }
+      return (child as HTMLElement).innerText;
+    });
+    // console.log(fullStatement);
     return fullStatement;
+
+    // const fullStatement: Array<string> = traverse(problem);
+    // return fullStatement;
   });
 
   if (!result || result.length < 4) {
@@ -38,6 +75,8 @@ const scrape = async (url: string) => {
       } elements instead of at least 4`
     );
   }
+
+  // console.log(result);
 
   if (result[4]) {
     result[4] = result[4]
@@ -80,7 +119,6 @@ const scrape = async (url: string) => {
     }
   }
 
-  await page.close();
   await browser.close();
 
   // Apply formatting on the server side
@@ -135,7 +173,14 @@ export async function GET(
     }
 
     if (!question?.question.problemStatement) {
-      const problemDetails = await scrape(url);
+      let problemDetails: any;
+      try {
+        problemDetails = await scrape(url);
+      } catch (err) {
+        return new Response(`Error scraping question: ${err}`, {
+          status: 500,
+        });
+      }
       await prisma.questionBank.update({
         where: { id: questionId },
         data: {

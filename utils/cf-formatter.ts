@@ -1,20 +1,32 @@
 import katex from "katex";
-const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+// const escapeHtml = (value: string) => value;
+// .replace(/&/g, "&amp;")
+// .replace(/</g, "&lt;")
+// .replace(/>/g, "&gt;")
+// .replace(/"/g, "&quot;")
+// .replace(/'/g, "&#39;");
 
-const escapeWithBreaks = (value: string) =>
-  escapeHtml(value).replace(/\n/g, "<br/>");
+function escapeKatexSpecialSymbol(text: string) {
+  text = text
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replaceAll("&amp;", "&");
+  return text.replace(/\$\$\$(.*?)\$\$\$/g, (_match, content) => {
+    const escapedContent = content.replace(/[#&%$~]/g, (char: string) => {
+      return `\\${char}`;
+    });
+
+    return `$$$${escapedContent}$$$`;
+  });
+}
+const escapeWithBreaks = (value: string) => value.replace(/\n/g, "<br/>");
 
 export function codeforcesDescriptionFormat(rawString: string) {
   let cursor = 0;
   let body = "";
   const MATH_DELIM = "$$$";
 
+  rawString = escapeKatexSpecialSymbol(rawString);
   while (cursor < rawString.length) {
     const start = rawString.indexOf(MATH_DELIM, cursor);
 
