@@ -6,7 +6,6 @@ const MAX_PER_PAGE_QUESTION = 20;
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
 
-  console.log("Fetching questions for user:", userId);
   if (!userId) {
     return new Response("Unauthorized", { status: 401 });
   }

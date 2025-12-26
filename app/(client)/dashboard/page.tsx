@@ -27,7 +27,6 @@ async function getUserQuestions() {
       throw new Error(`Failed to fetch user handle: ${res.status}`);
     }
     const { userHandle } = res.data;
-    console.log("User handle:", res.data);
     const response = await axios.get(
       `https://codeforces.com/api/user.status?handle=${encodeURIComponent(
         userHandle
@@ -41,7 +40,6 @@ async function getUserQuestions() {
     }
 
     const questions = response.data.result;
-    console.log("questions: ", questions);
     await axios.post("/api/questions/add-many", {
       questions: questions,
     });
@@ -70,7 +68,6 @@ export default function DashboardPage() {
       }
 
       toast.success("Question removed successfully!");
-      console.log("Successfully removed question");
 
       // Refetch questions to update UI
       const response = await axios.get("/api/questions");
@@ -100,7 +97,6 @@ export default function DashboardPage() {
 
       toast.dismiss();
       toast.success("Question added successfully!");
-      console.log("Successfully added question");
       setNewQuestionLink("");
 
       // Refetch questions to update UI
@@ -135,7 +131,6 @@ export default function DashboardPage() {
           throw new Error(`Failed to fetch questions: ${response.status}`);
         }
         setQuestions(response.data.questions);
-        console.log(response.data.questions);
       } catch (error) {
         console.error("Error fetching questions:", error);
       }
