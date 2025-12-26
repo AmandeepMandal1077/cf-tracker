@@ -139,7 +139,7 @@ const scrape = async (url: string) => {
     noteFormatted: codeforcesDescriptionFormat(obj.note),
   };
 
-  console.log(problemDetails);
+  // console.log(problemDetails);
   return problemDetails;
 };
 
