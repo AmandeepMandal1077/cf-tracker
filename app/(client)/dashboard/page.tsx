@@ -11,6 +11,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { Bookmark, ExternalLink, Eye, Plus, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import AppShell from "@/components/layouts/app-shell";
@@ -49,6 +58,7 @@ async function getUserQuestions() {
   }
 }
 
+const MAX_PER_PAGE_QUESTION = 2;
 export default function DashboardPage() {
   const { isLoaded, isSignedIn } = useUser();
   const router = useRouter();
@@ -58,6 +68,10 @@ export default function DashboardPage() {
 
   const [newQuestionLink, setNewQuestionLink] = useState<string>();
   const [isAddingQuestion, setIsAdding] = useState<boolean>(false);
+  const [pageNumber, setPageNumber] = useState<number>(1);
+
+  const [totalQuestions, setTotalQuestions] = useState<number>(0);
+  const totalPages = Math.ceil(totalQuestions / MAX_PER_PAGE_QUESTION);
 
   const handleQuestionRemove = useCallback(async (questionId: string) => {
     try {
@@ -126,11 +140,13 @@ export default function DashboardPage() {
     async function fetchQuestions() {
       // setIsLoading(true);
       try {
-        const response = await axios.get("/api/questions");
+        //fetch all questions of current page
+        const response = await axios.get(`/api/questions/?page=${pageNumber}`);
         if (response.status !== 200) {
           throw new Error(`Failed to fetch questions: ${response.status}`);
         }
         setQuestions(response.data.questions);
+        setTotalQuestions(response.data.totalQuestions);
       } catch (error) {
         console.error("Error fetching questions:", error);
       }
@@ -147,7 +163,7 @@ export default function DashboardPage() {
     };
 
     run();
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, pageNumber, setPageNumber]);
 
   const bookmarkToggle = async (questionId: string) => {
     try {
@@ -407,6 +423,117 @@ export default function DashboardPage() {
             </Card>
           ))}
         </div>
+
+        {/* pagination */}
+        {totalPages <= 5 ? (
+          <div>
+            <Pagination>
+              <PaginationContent>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (i) => (
+                    <PaginationItem key={i}>
+                      <PaginationLink href="#" onClick={() => setPageNumber(i)}>
+                        {i}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )
+                )}
+              </PaginationContent>
+            </Pagination>
+          </div>
+        ) : (
+          <div>
+            <Pagination>
+              <PaginationContent>
+                {/* previous page */}
+                {pageNumber > 1 && (
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={() => setPageNumber(pageNumber - 1)}
+                    ></PaginationPrevious>
+                  </PaginationItem>
+                )}
+                {/* 1st page */}
+                <PaginationItem>
+                  <PaginationLink href="#" onClick={() => setPageNumber(1)}>
+                    1
+                  </PaginationLink>
+                </PaginationItem>
+
+                {pageNumber > 3 ? (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem>
+                    <PaginationLink href="#" onClick={() => setPageNumber(2)}>
+                      2
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    onClick={() =>
+                      setPageNumber(
+                        Math.min(totalPages - 3, Math.max(3, pageNumber))
+                      )
+                    }
+                  >
+                    {Math.min(totalPages - 3, Math.max(3, pageNumber))}
+                  </PaginationLink>
+                </PaginationItem>
+
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    onClick={() =>
+                      setPageNumber(
+                        Math.min(totalPages - 2, Math.max(4, pageNumber + 1))
+                      )
+                    }
+                  >
+                    {Math.min(totalPages - 2, Math.max(4, pageNumber + 1))}
+                  </PaginationLink>
+                </PaginationItem>
+
+                {pageNumber < totalPages - 2 ? (
+                  <PaginationItem>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={() => setPageNumber(totalPages - 1)}
+                    >
+                      {totalPages - 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                )}
+                <PaginationItem>
+                  <PaginationLink onClick={() => setPageNumber(totalPages)}>
+                    {totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+                {/* next page */}
+                {pageNumber < totalPages && (
+                  <PaginationItem>
+                    <PaginationNext
+                      // href="#"
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setPageNumber((prev) => Math.min(totalPages, prev + 1))
+                      }
+                    />
+                  </PaginationItem>
+                )}
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
 
         {/* Empty State */}
         {questions.length === 0 && (
