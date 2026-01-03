@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest } from "next/server";
 
-const MAX_PER_PAGE_QUESTION = 20;
+const MAX_PER_PAGE_QUESTION = 9;
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
 
@@ -13,20 +13,24 @@ export async function GET(req: NextRequest) {
   const pageNumber: number =
     parseInt(req.nextUrl.searchParams.get("page") || "1") || 1;
   let questions;
+  let totalQuestions;
   try {
     // fetching from userQuestions
-    questions = await prisma.userQuestions.findMany({
-      where: { userId: userId },
-      include: { question: true },
-      orderBy: { createdAt: "desc" },
-      skip: (pageNumber - 1) * MAX_PER_PAGE_QUESTION,
-      take: MAX_PER_PAGE_QUESTION,
-    });
+    [questions, totalQuestions] = await prisma.$transaction([
+      prisma.userQuestions.findMany({
+        where: { userId: userId },
+        include: { question: true },
+        orderBy: { createdAt: "desc" },
+        skip: (pageNumber - 1) * MAX_PER_PAGE_QUESTION,
+        take: MAX_PER_PAGE_QUESTION,
+      }),
+      prisma.userQuestions.count({ where: { userId: userId } }),
+    ]);
   } catch (err) {
     console.error("Error fetching questions:", err);
     return new Response("Internal Server Error", { status: 500 });
   }
-  return new Response(JSON.stringify({ questions }), {
+  return new Response(JSON.stringify({ questions, totalQuestions }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });

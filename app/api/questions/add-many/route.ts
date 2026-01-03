@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { Question } from "@/types";
+import { getUpSolveQuestionsFromContest } from "@/utils/codeforces-scraper";
 // import { getUserFaultySubmissions } from "@/lib/req-cf";
 import { auth } from "@clerk/nextjs/server";
 
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
 
   try {
     const faultySubs = body.questions;
-    console.log("Faulty submissions fetched");
+    // console.log("Faulty submissions fetched");
 
     if (!faultySubs) {
       return new Response("No faulty submissions found", { status: 404 });
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
       }
     });
 
-    console.log(faultySubsData);
+    // console.log(faultySubsData);
 
     const questionBankData = faultySubsData.map((item) => ({
       id: item.id,
@@ -90,7 +91,6 @@ export async function POST(req: Request) {
       data: userQuestionsData,
       skipDuplicates: true,
     });
-    return new Response("Faulty submissions added", { status: 200 });
   } catch (err: any) {
     console.error("Error in add-many:", err);
     const status = err?.status || err?.response?.status || 500;
@@ -105,4 +105,68 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
     });
   }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new Error("No User Found");
+    }
+    const userHandle = user?.userHandle;
+    const upSolvedQuestions: string[] = await getUpSolveQuestionsFromContest(
+      userHandle
+    );
+
+    console.log("Upsolved Questions fetched:", upSolvedQuestions.length);
+    console.log(upSolvedQuestions);
+
+    for (const questionId of upSolvedQuestions) {
+      const problemLink = `https://codeforces.com/problemset/problem/${questionId.replace(
+        "_",
+        "/"
+      )}`;
+      await prisma.userQuestions.upsert({
+        where: {
+          userId_questionId: {
+            userId: userId,
+            questionId: questionId,
+          },
+        },
+        update: {},
+        create: {
+          verdict: "unattempted",
+          bookmarked: false,
+          user: {
+            connect: { id: userId },
+          },
+          question: {
+            connectOrCreate: {
+              where: { id: questionId },
+              create: {
+                id: questionId,
+                platform: "codeforces",
+                name: "NILL",
+                link: problemLink,
+              },
+            },
+          },
+        },
+      });
+    }
+  } catch (err: any) {
+    return new Response(
+      { error: "Failed to fetch questions", detail: err?.message },
+      {
+        status: err?.status || 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+  return new Response("Faulty submissions added", { status: 200 });
 }

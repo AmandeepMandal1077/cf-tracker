@@ -58,7 +58,7 @@ async function getUserQuestions() {
   }
 }
 
-const MAX_PER_PAGE_QUESTION = 2;
+const MAX_PER_PAGE_QUESTION = 9;
 export default function DashboardPage() {
   const { isLoaded, isSignedIn } = useUser();
   const router = useRouter();

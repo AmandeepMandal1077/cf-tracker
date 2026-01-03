@@ -162,7 +162,7 @@ export default function QuestionPage() {
         setFormattedProblemStatement(problemFormatted);
         setRawProblemStatement(problemRaw);
       } catch (err) {
-        console.error(`Error fetching question: ${err}`);
+        console.log(`Error fetching question: ${err}`);
       }
     }
     if (!questionId) return;

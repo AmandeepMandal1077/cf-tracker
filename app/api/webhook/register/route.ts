@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   const body = await req.json();
   const payload = JSON.stringify(body);
 
-  console.log("Webhook payload:", payload);
+  // console.log("Webhook payload:", payload);
 
   //   return new Response(`${payload}`, { status: 501 });
   const wh = new Webhook(svixSecret);
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
   const { id } = event.data;
   const eventType = event.type;
 
-  console.log("Webhook event received:", eventType, "User ID:", id);
+  // console.log("Webhook event received:", eventType, "User ID:", id);
 
   if (eventType === "user.created") {
     try {
