@@ -4,7 +4,7 @@ import { CodeforcesProblem, UserQuestion } from "@/types";
 import { getRatingBadgeClass } from "@/utils/rating";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,18 +19,33 @@ import {
 } from "lucide-react";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import "katex/dist/katex.min.css";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
+// import Editor from "@monaco-editor/react";
+import Editor, { useMonaco } from "@monaco-editor/react";
+
 export default function QuestionPage() {
+  const monaco = useMonaco();
+
   const params = useParams();
   const router = useRouter();
   const questionId = params.questionId;
@@ -45,6 +60,10 @@ export default function QuestionPage() {
   const [userCode, setUserCode] = useState<string>("");
   const [codeAnalysis, setCodeAnalysis] = useState<string>("");
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+
+  const [codeLanguage, setCodeLanguage] = useState<string>("javascript");
+
+  const editorRef = useRef(null);
 
   const bookmarkToggle = async () => {
     if (!question) return;
@@ -143,7 +162,7 @@ export default function QuestionPage() {
         setFormattedProblemStatement(problemFormatted);
         setRawProblemStatement(problemRaw);
       } catch (err) {
-        console.error(`Error fetching question: ${err}`);
+        console.log(`Error fetching question: ${err}`);
       }
     }
     if (!questionId) return;
@@ -160,6 +179,15 @@ export default function QuestionPage() {
 
     run();
   }, [questionId]);
+
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
+  }
+
+  function handleEditorChange(value, event) {
+    // console.log("here is the current model value:", value);
+    setUserCode(value || "");
+  }
 
   if (!questionId) {
     return (
@@ -504,21 +532,57 @@ export default function QuestionPage() {
 
           {/* Code Analyzer and Analysis Cards - Side by Side with Fixed Height */}
           <div className="w-full px-4 sm:px-8">
-            <div className="flex flex-col md:flex-row gap-6 md:h-[800px]">
+            <div className="flex flex-col md:flex-row gap-6 md:h-200">
               {/* Code Analyzer Card */}
-              <div className="w-full md:flex-[4]">
-                <Card className="flex flex-col overflow-hidden border-white/10 bg-neutral-950 text-white shadow-none h-full">
-                  <CardHeader className="border-b border-white/10 shrink-0">
-                    <CardTitle className="text-2xl text-white font-semibold">
-                      Code Analyzer
-                    </CardTitle>
+              <div className="w-full md:flex-4">
+                <Card className="flex flex-col border-white/10 bg-neutral-950 text-white h-full">
+                  <CardHeader className="border-b border-white/10">
+                    <div className="w-full h-full flex justify-between">
+                      <CardTitle className="text-2xl text-white font-semibold">
+                        Code Analyzer
+                      </CardTitle>
+                      <CardAction>
+                        <Select
+                          onValueChange={(value) => setCodeLanguage(value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="javascript" />
+                          </SelectTrigger>
+                          <SelectContent position="popper" align="end">
+                            <SelectGroup>
+                              {/* <SelectLabel>Fruits</SelectLabel> */}
+                              <SelectItem value="cpp">C++</SelectItem>
+                              <SelectItem value="python">Python</SelectItem>
+                              <SelectItem value="java">Java</SelectItem>
+                              <SelectItem value="javascript">
+                                Javascript
+                              </SelectItem>
+                              <SelectItem value="typescript">
+                                Typescript
+                              </SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </CardAction>
+                    </div>
                   </CardHeader>
-                  <CardContent className="flex-1 flex flex-col pt-6 space-y-4 overflow-hidden">
-                    <textarea
+                  <CardContent className="flex-1 flex flex-col pt-6 space-y-4">
+                    {/* <textarea
                       className="flex-1 w-full bg-neutral-900 border border-white/10 rounded-lg p-4 text-neutral-300 font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-colors overflow-y-auto"
                       placeholder="Paste your code here for analysis..."
                       value={userCode}
                       onChange={(e) => setUserCode(e.target.value)}
+                    /> */}
+                    <Editor
+                      // height="90vh"
+                      // className="flex-1 w-full bg-neutral-900 border border-white/10 rounded-lg"
+                      height="100%"
+                      defaultLanguage="javascript"
+                      language={codeLanguage}
+                      defaultValue="// write your solution"
+                      theme="vs-dark"
+                      onMount={handleEditorDidMount}
+                      onChange={handleEditorChange}
                     />
                     <div className="flex justify-end shrink-0">
                       <Button
