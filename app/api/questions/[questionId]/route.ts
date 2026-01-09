@@ -9,7 +9,9 @@ export async function GET(
   const { userId } = await auth();
 
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   const { questionId } = await params;
@@ -18,8 +20,8 @@ export async function GET(
     "/"
   )}`;
 
-  console.log("Fetching question details for:", questionId);
-  //Need optimization
+  // console.log("Fetching question details for:", questionId);
+  // Need optimization
   try {
     let question = await prisma.userQuestions.findUnique({
       where: { userId_questionId: { userId, questionId } },
@@ -29,19 +31,22 @@ export async function GET(
     });
 
     if (!question) {
-      return new Response("no question", { status: 500 });
+      return new Response(JSON.stringify({ error: "Question not found" }), {
+        status: 404,
+      });
     }
 
     if (!question?.question.problemStatement) {
       let problemDetails: any;
       try {
-        console.log("Scraping question details for:", url);
+        // console.log("Scraping question details for:", url);
         problemDetails = await getQuestionInfo(url);
-        console.log("Scraped question details successfully");
+        // console.log("Scraped question details successfully");
       } catch (err) {
-        return new Response(`Error scraping question: ${err}`, {
-          status: 500,
-        });
+        return new Response(
+          JSON.stringify({ error: `Error scraping question: ${err}` }),
+          { status: 500 }
+        );
       }
       await prisma.questionBank.update({
         where: { id: questionId },
@@ -58,11 +63,11 @@ export async function GET(
       });
     }
 
-    return new Response(JSON.stringify({ question }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ question }), { status: 200 });
   } catch (err) {
-    return new Response(`Error fetching question: ${err}`, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: `Error fetching question: ${err}` }),
+      { status: 500 }
+    );
   }
 }

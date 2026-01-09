@@ -7,7 +7,9 @@ export async function GET(req: NextRequest) {
   const { userId } = await auth();
 
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   const pageNumber: number =
@@ -28,10 +30,11 @@ export async function GET(req: NextRequest) {
     ]);
   } catch (err) {
     console.error("Error fetching questions:", err);
-    return new Response("Internal Server Error", { status: 500 });
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), {
+      status: 500,
+    });
   }
   return new Response(JSON.stringify({ questions, totalQuestions }), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
   });
 }

@@ -10,8 +10,10 @@ export async function POST(req: Request) {
   const svixSecret = process.env.SVIX_WEBHOOK_SECRET;
   if (!svixSecret) {
     console.error("SVIX webhook secret not configured");
-    return new Response("SVIX webhook secret not configured", { status: 502 });
-    // throw new Error("SVIX webhook secret not configured");
+    return new Response(
+      JSON.stringify({ error: "SVIX webhook secret not configured" }),
+      { status: 502 }
+    );
   }
 
   const headersPayload = await headers();
@@ -20,7 +22,9 @@ export async function POST(req: Request) {
   const svixSignature = headersPayload.get("svix-signature") || "";
 
   if (!svixId || !svixTimestamp || !svixSignature) {
-    return new Response("Missing SVIX headers", { status: 400 });
+    return new Response(JSON.stringify({ error: "Missing SVIX headers" }), {
+      status: 400,
+    });
   }
 
   const header = {
@@ -42,7 +46,9 @@ export async function POST(req: Request) {
     event = wh.verify(payload, header) as WebhookEvent;
   } catch (err) {
     console.error("Error verifying webhook:", err);
-    return new Response("Invalid signature", { status: 400 });
+    return new Response(JSON.stringify({ error: "Invalid signature" }), {
+      status: 400,
+    });
   }
 
   const { id } = event.data;
@@ -55,14 +61,19 @@ export async function POST(req: Request) {
       // Handle user created event
       if (!id) {
         console.error("No user ID found in event data");
-        return new Response("No user ID found", { status: 400 });
+        return new Response(JSON.stringify({ error: "No user ID found" }), {
+          status: 400,
+        });
       }
 
       const { primary_email_address_id, email_addresses } = event.data;
 
       if (!email_addresses || !Array.isArray(email_addresses)) {
         console.error("No email addresses found in event data");
-        return new Response("No email addresses found", { status: 400 });
+        return new Response(
+          JSON.stringify({ error: "No email addresses found" }),
+          { status: 400 }
+        );
       }
 
       const email = email_addresses.find(
@@ -74,7 +85,10 @@ export async function POST(req: Request) {
           "No primary email found. Available emails:",
           email_addresses
         );
-        return new Response("No Primary Email found", { status: 400 });
+        return new Response(
+          JSON.stringify({ error: "No primary email found" }),
+          { status: 400 }
+        );
       }
 
       // Store the email and emailId in your database
@@ -83,7 +97,9 @@ export async function POST(req: Request) {
       const userHandle = event.data.unsafe_metadata?.userHandle as string;
       if (!userHandle) {
         console.error("No user handle found in unsafe metadata");
-        return new Response("No user handle found", { status: 400 });
+        return new Response(JSON.stringify({ error: "No user handle found" }), {
+          status: 400,
+        });
       }
       const newUser = await prisma.user.create({
         data: {
@@ -97,19 +113,20 @@ export async function POST(req: Request) {
       console.log("New user created successfully:", newUser);
     } catch (error) {
       console.error("Error creating user:", error);
-      // Log more details about the error
       if (error instanceof Error) {
         console.error("Error message:", error.message);
         console.error("Error stack:", error.stack);
       }
       return new Response(
-        `Error creating user: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
+        JSON.stringify({
+          error: `Error creating user: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+        }),
         { status: 500 }
       );
     }
   }
 
-  return new Response("Webhook received", { status: 200 });
+  return new Response(JSON.stringify({ success: true }), { status: 200 });
 }
