@@ -6,7 +6,9 @@ export async function PUT(req: Request) {
   const { userId } = await auth();
 
   if (!userId) {
-    return new Response("Unauthorize", { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   const body = await req.json();
@@ -15,7 +17,9 @@ export async function PUT(req: Request) {
   try {
     const problemDetails = await fetchQuestionDetailsViaURL(questionUrl);
     if (!problemDetails) {
-      return new Response("Invalid Question URL", { status: 400 });
+      return new Response(JSON.stringify({ error: "Invalid Question URL" }), {
+        status: 400,
+      });
     }
     const problemId = problemDetails.contestId + "_" + problemDetails.index;
     let question;
@@ -44,10 +48,16 @@ export async function PUT(req: Request) {
         },
       });
     } catch (err) {
-      return new Response(`Already existed Question: ${err}`, { status: 406 });
+      return new Response(
+        JSON.stringify({ error: "Question already exists" }),
+        { status: 406 }
+      );
     }
-    return new Response(JSON.stringify(question), { status: 200 });
+    return new Response(JSON.stringify({ question }), { status: 200 });
   } catch (err) {
-    return new Response(`Error fetching question: ${err}`, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: `Error fetching question: ${err}` }),
+      { status: 500 }
+    );
   }
 }

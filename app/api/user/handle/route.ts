@@ -4,7 +4,9 @@ import { auth } from "@clerk/nextjs/server";
 export async function GET() {
   const { userId } = await auth();
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   let userHandle: string | null;
@@ -20,10 +22,10 @@ export async function GET() {
       throw new Error("User handle not found");
     }
   } catch (err) {
-    return new Response(`Error fetching user handle: ${err}`, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: `Error fetching user handle: ${err}` }),
+      { status: 500 }
+    );
   }
-  return new Response(JSON.stringify({ userHandle }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  return new Response(JSON.stringify({ userHandle }), { status: 200 });
 }

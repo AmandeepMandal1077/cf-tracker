@@ -1,28 +1,30 @@
 import prisma from "@/lib/prisma";
 import { Question } from "@/types";
 import { getUpSolveQuestionsFromContest } from "@/utils/codeforces-scraper";
-// import { getUserFaultySubmissions } from "@/lib/req-cf";
 import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
   const body = await req.json();
   const { userId } = await auth();
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   try {
     const faultySubs = body.questions;
-    // console.log("Faulty submissions fetched");
 
     if (!faultySubs) {
-      return new Response("No faulty submissions found", { status: 404 });
+      return new Response(
+        JSON.stringify({ error: "No faulty submissions found" }),
+        { status: 404 }
+      );
     }
 
     faultySubs.sort((a, b) => b.creationTimeSeconds - a.creationTimeSeconds);
     const problemMap: Map<string, boolean> = new Map<string, boolean>();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const faultySubsData: Question[] = [];
 
     faultySubs.forEach(async (sub) => {
@@ -60,9 +62,6 @@ export async function POST(req: Request) {
         }
       }
     });
-
-    // console.log(faultySubsData);
-
     const questionBankData = faultySubsData.map((item) => ({
       id: item.id,
       platform: item.platform,
@@ -93,17 +92,14 @@ export async function POST(req: Request) {
     });
   } catch (err: any) {
     console.error("Error in add-many:", err);
-    const status = err?.status || err?.response?.status || 500;
-    const detail =
-      err?.response?.data?.comment || err?.response?.data || err?.message;
-    const body = {
-      error: "Failed to fetch faulty submissions",
-      detail,
-    };
-    return new Response(JSON.stringify(body), {
-      status,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Failed to fetch faulty submissions",
+        detail:
+          err?.response?.data?.comment || err?.response?.data || err?.message,
+      }),
+      { status: err?.status || err?.response?.status || 500 }
+    );
   }
 
   try {
@@ -159,14 +155,12 @@ export async function POST(req: Request) {
     }
   } catch (err: any) {
     return new Response(
-      { error: "Failed to fetch questions", detail: err?.message },
-      {
-        status: err?.status || 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+      JSON.stringify({
+        error: "Failed to fetch questions",
+        detail: err?.message,
+      }),
+      { status: err?.status || 500 }
     );
   }
-  return new Response("Faulty submissions added", { status: 200 });
+  return new Response(JSON.stringify({ success: true }), { status: 200 });
 }

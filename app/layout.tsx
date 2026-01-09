@@ -11,6 +11,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import "./globals.css";
 import "katex/dist/katex.min.css";
+import StoreProvider from "./storeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,38 +34,40 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" className="scroll-smooth">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
-        >
-          <header className="sticky top-0 z-50 bg-black border-b border-white/10">
-            <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-end gap-3 px-4 sm:px-8">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <Button
-                    variant="outline"
-                    className="border-white/10 hover:border-white/20"
-                  >
-                    Sign in
-                  </Button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <Button className="bg-white/90 text-black hover:bg-white">
-                    Sign up
-                  </Button>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton
-                  appearance={{ variables: { colorBackground: "#000" } }}
-                />
-              </SignedIn>
-            </div>
-          </header>
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <StoreProvider>
+      <ClerkProvider>
+        <html lang="en" className="scroll-smooth">
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
+          >
+            <header className="sticky top-0 z-50 bg-black border-b border-white/10">
+              <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-end gap-3 px-4 sm:px-8">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button
+                      variant="outline"
+                      className="border-white/10 hover:border-white/20"
+                    >
+                      Sign in
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <Button className="bg-white/90 text-black hover:bg-white">
+                      Sign up
+                    </Button>
+                  </SignUpButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton
+                    appearance={{ variables: { colorBackground: "#000" } }}
+                  />
+                </SignedIn>
+              </div>
+            </header>
+            {children}
+          </body>
+        </html>
+      </ClerkProvider>
+    </StoreProvider>
   );
 }

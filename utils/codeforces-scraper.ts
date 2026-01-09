@@ -61,10 +61,9 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
       const allProblems = resJson.result.problems.map(
         (p) => `${contestId}_${p.index}`
       );
-      // console.log(resJson.result.rows[0]);
       const problemRes = resJson.result.rows?.at(0)?.problemResults;
       if (!problemRes) {
-        console.error(`No problem results for contest ${contestId}`);
+        console.log(`No problem results for contest ${contestId}`);
         continue;
       }
       let solvedFound = false;
@@ -95,14 +94,13 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
 
     return out;
   } catch (err) {
-    console.error("Error in getUpSolveQuestionsFromContest:", err);
+    console.log("Error in getUpSolveQuestionsFromContest:", err);
     return [];
   } finally {
     if (browser.connected) {
       await browser.close();
     }
   }
-  // console.log("Upsolve List:", JSON.stringify(out, null, 2));
 };
 
 const getQuestionInfo = async (url: string) => {
@@ -147,7 +145,6 @@ const getQuestionInfo = async (url: string) => {
       });
 
       if (index == 1 || index == 5) {
-        // const statement = traverse(child);
         child
           .querySelectorAll(".MathJax, .MathJax_Preview, .section-title")
           .forEach((el) => el.remove());
@@ -155,11 +152,7 @@ const getQuestionInfo = async (url: string) => {
       }
       return (child as HTMLElement).innerText;
     });
-    // console.log(fullStatement);
     return fullStatement;
-
-    // const fullStatement: Array<string> = traverse(problem);
-    // return fullStatement;
   });
 
   if (!result || result.length < 4) {

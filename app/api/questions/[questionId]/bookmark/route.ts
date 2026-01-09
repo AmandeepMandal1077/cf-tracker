@@ -8,11 +8,15 @@ export async function PATCH(
   const { userId } = await auth();
 
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
   const { questionId } = await params;
   if (!questionId) {
-    return new Response("Bad Request: Missing questionId", { status: 400 });
+    return new Response(JSON.stringify({ error: "Missing questionId" }), {
+      status: 400,
+    });
   }
   try {
     const record = await prisma.userQuestions.findUnique({
@@ -27,8 +31,14 @@ export async function PATCH(
       where: { userId_questionId: { userId, questionId } },
       data: { bookmarked: !record.bookmarked },
     });
-    return new Response("Successfully Bookmarked", { status: 200 });
+    return new Response(
+      JSON.stringify({ success: true, bookmarked: !record.bookmarked }),
+      { status: 200 }
+    );
   } catch (err) {
-    return new Response(`Error fetching question: ${err}`, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: `Error updating bookmark: ${err}` }),
+      { status: 500 }
+    );
   }
 }

@@ -7,11 +7,15 @@ const ai = new GoogleGenAI({
 export async function POST(req: Request) {
   const { userId } = await auth();
   if (!userId) {
-    return new Response("Unauthorized", { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
   }
 
   if (!ai) {
-    return new Response("AI client not configured", { status: 502 });
+    return new Response(JSON.stringify({ error: "AI client not configured" }), {
+      status: 502,
+    });
   }
 
   const { code, question } = await req.json();
@@ -46,14 +50,16 @@ Code: ${code}
     const result = response.text;
 
     console.log("AI Analysis Result:", result);
-    return new Response(JSON.stringify({ analysis: result }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(JSON.stringify({ analysis: result }), { status: 200 });
   } catch (error: any) {
     if (error.status === 429) {
-      return new Response("Rate limit exceeded", { status: 429 });
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {
+        status: 429,
+      });
     }
-    return new Response(`Error analyzing code: ${error}`, { status: 500 });
+    return new Response(
+      JSON.stringify({ error: `Error analyzing code: ${error}` }),
+      { status: 500 }
+    );
   }
 }

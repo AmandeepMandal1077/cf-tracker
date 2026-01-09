@@ -8,12 +8,16 @@ export async function DELETE(
   try {
     const { userId } = await auth();
     if (!userId) {
-      return new Response("No authorized", { status: 401 });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+      });
     }
 
     const { questionId } = await params;
     if (!questionId) {
-      return new Response("No such problem", { status: 400 });
+      return new Response(JSON.stringify({ error: "Missing questionId" }), {
+        status: 400,
+      });
     }
 
     try {
@@ -21,11 +25,17 @@ export async function DELETE(
         where: { userId_questionId: { userId, questionId: questionId } },
       });
 
-      return new Response("Successfully removed question", { status: 200 });
+      return new Response(JSON.stringify({ success: true }), { status: 200 });
     } catch (err) {
-      return new Response("Unable to remove question", { status: 500 });
+      return new Response(
+        JSON.stringify({ error: "Unable to remove question" }),
+        { status: 500 }
+      );
     }
   } catch (err) {
-    return new Response("Unable to remove question", { status: 500 });
+    return new Response(
+      JSON.stringify({ error: "Unable to remove question" }),
+      { status: 500 }
+    );
   }
 }
