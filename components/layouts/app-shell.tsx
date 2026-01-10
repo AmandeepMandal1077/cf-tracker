@@ -29,13 +29,12 @@ export function AppShell({
 
   return (
     <div
-      className={cn("min-h-[calc(100dvh-4rem)] bg-black text-white", className)}
+      className={cn(
+        "min-h-[calc(100dvh-4rem)] bg-black text-white px-4 sm:px-8 py-8",
+        className
+      )}
     >
-      <div
-        className={cn("mx-auto px-4 sm:px-8 py-8", maxWidthClasses[maxWidth])}
-      >
-        {children}
-      </div>
+      {children}
     </div>
   );
 }

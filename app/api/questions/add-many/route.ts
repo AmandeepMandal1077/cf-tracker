@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { Question } from "@/types";
+import { Question, UserQuestion } from "@/types";
 import { getUpSolveQuestionsFromContest } from "@/utils/codeforces-scraper";
 import { auth } from "@clerk/nextjs/server";
 
@@ -113,15 +113,14 @@ export async function POST(req: Request) {
       throw new Error("No User Found");
     }
     const userHandle = user?.userHandle;
-    const upSolvedQuestions: string[] = await getUpSolveQuestionsFromContest(
-      userHandle
-    );
+    const toUpSolveQuestions: UserQuestion[] =
+      await getUpSolveQuestionsFromContest(userHandle);
 
-    console.log("Upsolved Questions fetched:", upSolvedQuestions.length);
-    console.log(upSolvedQuestions);
+    console.log("Upsolved Questions fetched:", toUpSolveQuestions.length);
+    console.log(toUpSolveQuestions);
 
-    for (const questionId of upSolvedQuestions) {
-      const problemLink = `https://codeforces.com/problemset/problem/${questionId.replace(
+    for (const question of toUpSolveQuestions) {
+      const problemLink = `https://codeforces.com/problemset/problem/${question.questionId.replace(
         "_",
         "/"
       )}`;
@@ -129,24 +128,26 @@ export async function POST(req: Request) {
         where: {
           userId_questionId: {
             userId: userId,
-            questionId: questionId,
+            questionId: question.questionId,
           },
         },
         update: {},
         create: {
-          verdict: "unattempted",
-          bookmarked: false,
+          verdict: question.verdict,
+          bookmarked: question.bookmarked,
           user: {
             connect: { id: userId },
           },
           question: {
             connectOrCreate: {
-              where: { id: questionId },
+              where: { id: question.questionId },
               create: {
-                id: questionId,
+                id: question.questionId,
                 platform: "codeforces",
-                name: "NILL",
+                name: question.question?.name || "NILL",
                 link: problemLink,
+                rating: question.question?.rating || null,
+                tags: question.question?.tags || [],
               },
             },
           },

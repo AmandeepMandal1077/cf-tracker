@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CF Tracker
 
-## Getting Started
+A sleek, minimalist Codeforces upsolving companion that helps you manage and conquer unsolved problems from your competitive programming journey.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Smart Sync**: Automatically fetch all your unsolved Codeforces problems and track questions you need to upsolve — problems you couldn't solve during live contests
+- **Full Problem View**: Open any question to see the complete problem statement with examples and constraints, all without leaving the app
+- **Integrated Code Editor**: Write solutions directly using Monaco Editor with multi-language support (note: code execution is not supported in the browser)
+- **AI Code Analysis**: Stuck on a problem? Get instant feedback on what's wrong with your code and hints on how to fix it
+- **Question Management**: Add new questions manually, remove solved ones, and bookmark important problems for quick access
+- **Clean UI**: Minimal, fast interface with a dark theme optimized for long coding sessions
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository
+2. Install dependencies:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   bun install
+   ```
 
-## Learn More
+3. Set up your environment variables (copy from `env.example`)
 
-To learn more about Next.js, take a look at the following resources:
+4. Run the development server:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   bun dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. Open [http://localhost:3000](http://localhost:3000) and sign in with Clerk to start tracking your progress
 
-## Deploy on Vercel
+## 🛠️ Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Framework**: Next.js 14+ (App Router)
+- **UI**: shadcn/ui + Tailwind CSS
+- **Database**: Prisma ORM
+- **Authentication**: Clerk
+- **Editor**: Monaco Editor
+- **Styling**: Tailwind CSS with custom dark theme
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📦 Project Structure
+
+- `/app` - Next.js app router pages and API routes
+- `/components` - Reusable UI components
+- `/lib` - Utility functions and hooks
+- `/prisma` - Database schema and migrations
+- `/utils` - Helper functions for Codeforces API integration
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.

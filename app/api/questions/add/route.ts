@@ -46,6 +46,9 @@ export async function PUT(req: Request) {
             },
           },
         },
+        include: {
+          question: true,
+        },
       });
     } catch (err) {
       return new Response(

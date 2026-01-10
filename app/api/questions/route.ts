@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
         where: { userId: userId },
         include: { question: true },
         orderBy: { createdAt: "desc" },
-        skip: (pageNumber - 1) * MAX_PER_PAGE_QUESTION,
-        take: MAX_PER_PAGE_QUESTION,
+        // skip: (pageNumber - 1) * MAX_PER_PAGE_QUESTION,
+        // take: MAX_PER_PAGE_QUESTION,
       }),
       prisma.userQuestions.count({ where: { userId: userId } }),
     ]);

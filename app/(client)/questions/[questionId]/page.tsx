@@ -133,7 +133,6 @@ export default function QuestionPage() {
   if (!questionId) {
     return (
       <div className="flex min-h-[calc(100dvh-4rem)] bg-black">
-        <div className="w-20 flex flex-col items-center justify-start pt-8 border-r border-white/10"></div>
         <div className="flex-1 overflow-y-auto">
           <div className="flex items-center justify-center min-h-full">
             <Card className="w-full max-w-md border-white/10 bg-neutral-950 text-white shadow-none">
@@ -150,7 +149,6 @@ export default function QuestionPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[calc(100dvh-4rem)] bg-black max-h-full">
-        <div className="w-20 flex flex-col items-center justify-start pt-8 border-r border-white/10"></div>
         <div className="flex-1 overflow-y-auto">
           <div className="flex items-start justify-center min-h-full">
             <div className="w-full max-w-2xl px-4 sm:px-8 py-8">
@@ -177,7 +175,6 @@ export default function QuestionPage() {
   if (!question) {
     return (
       <div className="flex min-h-[calc(100dvh-4rem)] bg-black">
-        <div className="w-20 flex flex-col items-center justify-start pt-8 border-r border-white/10"></div>
         <div className="flex-1 overflow-y-auto">
           <div className="flex items-center justify-center min-h-full">
             <Card className="w-full max-w-md border-white/10 bg-neutral-950 text-white shadow-none">
@@ -195,17 +192,6 @@ export default function QuestionPage() {
 
   return (
     <div className="flex min-h-screen bg-black">
-      <div className="w-20 flex flex-col items-center justify-start pt-8 border-r border-white/10">
-        <Button
-          variant="ghost"
-          onClick={() => router.push("/dashboard")}
-          className="text-neutral-400 hover:text-white hover:bg-white/10 transition-colors duration-150 ease-linear"
-          title="Back to Dashboard"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-      </div>
-
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col items-center min-h-full py-8 space-y-6">
           <div className="w-full max-w-2xl px-4 sm:px-8">

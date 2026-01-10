@@ -12,7 +12,7 @@ function escapeKatexSpecialSymbol(text: string) {
     .replaceAll("&gt;", ">")
     .replaceAll("&amp;", "&");
   return text.replace(/\$\$\$(.*?)\$\$\$/g, (_match, content) => {
-    const escapedContent = content.replace(/[#&%$~]/g, (char: string) => {
+    const escapedContent = content.replace(/[#$~]/g, (char: string) => {
       return `\\${char}`;
     });
 
