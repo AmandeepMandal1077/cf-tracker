@@ -42,7 +42,6 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
     });
 
     browser.close();
-    // console.log(contestLinks);
     const out = [];
     for (const contestLink of contestLinks) {
       const contestId = contestLink.split("/")?.at(-4);
@@ -58,9 +57,22 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
         break;
       }
 
-      const allProblems = resJson.result.problems.map(
-        (p) => `${contestId}_${p.index}`
-      );
+      // const allProblems = resJson.result.problems.map(
+      //   (p) => `${contestId}_${p.index}`
+      // );
+      const allProblems = resJson.result.problems.map((p) => {
+        return {
+          questionId: `${contestId}_${p.index}`,
+          verdict: "Unattempted",
+          bookmarked: false,
+          question: {
+            rating: parseInt(p.rating) || null,
+            name: p.name,
+            tags: p.tags || [],
+            link: `https://codeforces.com/problemset/problem/${contestId}/${p.index}`,
+          },
+        };
+      });
       const problemRes = resJson.result.rows?.at(0)?.problemResults;
       if (!problemRes) {
         console.log(`No problem results for contest ${contestId}`);
@@ -83,8 +95,8 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
       if (upSolved) {
         for (let i = upSolved.length - 1; i >= 0; --i) {
           if (upSolved[i].points > 0) {
-            const id = allProblems[i];
-            toSolve = toSolve.filter((i) => i !== id);
+            const id = allProblems[i].questionId;
+            toSolve = toSolve.filter((q) => q.questionId !== id);
           }
         }
       }

@@ -7,6 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bookmark, ExternalLink, Eye, Trash2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { useAppSelector } from "@/lib/hooks";
+import { selectIsQuestionDeleting } from "@/lib/features/questions/questionSlice";
 
 interface QuestionCardProps {
   question: UserQuestion;
@@ -36,9 +39,17 @@ export default function QuestionCard({
   onRemove,
 }: QuestionCardProps) {
   const router = useRouter();
+  const isDeleting = useAppSelector((state) =>
+    selectIsQuestionDeleting(state, q.questionId)
+  );
 
   return (
-    <Card className="border-white/10 bg-neutral-950 text-white shadow-none hover:border-white/20 transition-colors duration-150 ease-linear">
+    <Card className="border-white/10 bg-neutral-950 text-white shadow-none hover:border-white/20 transition-colors duration-150 ease-linear relative">
+      {isDeleting && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-sm rounded-lg">
+          <Spinner className="h-8 w-8 text-white" />
+        </div>
+      )}
       <CardHeader className="space-y-3">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg text-white line-clamp-2 leading-tight">

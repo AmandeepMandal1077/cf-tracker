@@ -11,17 +11,6 @@
  * 2000 - 2199: Orange
  * >= 2200: Red
  */
-export function getRatingColor(rating: number | null): string {
-  if (!rating) return "text-gray-400";
-  if (rating < 1200) return "text-gray-400";
-  if (rating < 1400) return "text-green-500";
-  if (rating < 1600) return "text-cyan-400";
-  if (rating < 1900) return "text-blue-500";
-  if (rating < 2000) return "text-purple-500";
-  if (rating < 2200) return "text-orange-500";
-  return "text-red-600";
-}
-
 /**
  * Get the full badge styling for a rating (background + border + text)
  * Used internally for badge backgrounds in the UI

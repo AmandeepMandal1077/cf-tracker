@@ -32,7 +32,7 @@ export interface Question {
   platform: string;
   name: string;
   link: string;
-  rating?: string;
+  rating?: number | null;
   tags?: string[];
   verdict: string;
   createdAt: string | Date;

@@ -3,6 +3,7 @@
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ratelimiter } from "@/lib/rate-limiter";
 import { UserQuestion } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,17 @@ import { Plus, RefreshCcw } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import AppShell from "@/components/layouts/app-shell";
 import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  addQuestionToStoreFront,
+  markQuestionAsDeleting,
+  removeQuestionFromStore,
+  selectQuestions,
+  setQuestionsInStore,
+  toggleBookmarkInQuestion,
+} from "@/lib/features/questions/questionSlice";
+import { useAppSelector } from "@/lib/hooks";
 
 async function getUserQuestions() {
   try {
@@ -59,41 +71,56 @@ async function getUserQuestions() {
 const MAX_PER_PAGE_QUESTION = 9;
 export default function DashboardPage() {
   const { isLoaded, isSignedIn } = useUser();
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pageNumber = parseInt(searchParams.get("page") || "1", 10);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [questions, setQuestions] = useState<UserQuestion[]>([]);
-
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
 
-  const [newQuestionLink, setNewQuestionLink] = useState<string>();
+  const questions = useAppSelector(selectQuestions);
+  const [newQuestionLink, setNewQuestionLink] = useState<string>("");
   const [isAddingQuestion, setIsAdding] = useState<boolean>(false);
-  const [pageNumber, setPageNumber] = useState<number>(1);
 
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
   const totalPages = Math.ceil(totalQuestions / MAX_PER_PAGE_QUESTION);
 
-  const handleQuestionRemove = useCallback(async (questionId: string) => {
-    try {
-      const res = await axios.delete(`/api/questions/${questionId}/remove`);
+  const setPageNumber = (page: number) => {
+    router.push(`/dashboard?page=${page}`);
+  };
 
-      if (res.status !== 200) {
+  const handleQuestionRemove = useCallback(
+    async (questionId: string) => {
+      try {
+        dispatch(markQuestionAsDeleting(questionId));
+        const res = await axios.delete(`/api/questions/${questionId}/remove`);
+
+        if (res.status !== 200) {
+          throw new Error("Error removing question");
+        }
+
+        toast.success("Question removed successfully!");
+        dispatch(removeQuestionFromStore(questionId));
+        setTotalQuestions((prev) => prev - 1);
+
+        // Refetch questions to update UI
+        // const response = await axios.get(`/api/questions?page=${pageNumber}`);
+        // if (response.status === 200) {
+        //   // setQuestions(response.data.questions);
+        //   dispatch(setQuestionsInStore(response.data.questions));
+        //   setTotalQuestions((prev) => prev - 1);
+        //   setPageNumber(1);
+        // }
+
+        return true;
+      } catch (err) {
+        toast.error("Failed to remove question. Please try again.");
         throw new Error("Error removing question");
       }
-
-      toast.success("Question removed successfully!");
-
-      // Refetch questions to update UI
-      const response = await axios.get(`/api/questions?page=${pageNumber}`);
-      if (response.status === 200) {
-        setQuestions(response.data.questions);
-      }
-
-      return true;
-    } catch (err) {
-      toast.error("Failed to remove question. Please try again.");
-      throw new Error("Error removing question");
-    }
-  }, []);
+    },
+    [pageNumber, dispatch]
+  );
 
   const handleQuestionAdd = useCallback(async () => {
     setIsAdding(true);
@@ -111,12 +138,16 @@ export default function DashboardPage() {
       toast.dismiss();
       toast.success("Question added successfully!");
       setNewQuestionLink("");
+      setTotalQuestions((prev) => prev + 1);
+      setPageNumber(1);
+      dispatch(addQuestionToStoreFront(res.data.question));
 
       // Refetch questions to update UI
-      const response = await axios.get(`/api/questions?page=${pageNumber}`);
-      if (response.status === 200) {
-        setQuestions(response.data.questions);
-      }
+      // const response = await axios.get(`/api/questions?page=${1}`);
+      // if (response.status === 200) {
+      //   dispatch(setQuestionsInStore(response.data.questions));
+      //   setTotalQuestions((prev) => prev + 1);
+      // }
 
       return true;
     } catch (err) {
@@ -126,7 +157,7 @@ export default function DashboardPage() {
     } finally {
       setIsAdding(false);
     }
-  }, [newQuestionLink]);
+  }, [newQuestionLink, pageNumber, dispatch]);
 
   const handleSync = useCallback(async () => {
     setIsSyncing(true);
@@ -139,7 +170,7 @@ export default function DashboardPage() {
           `Failed to fetch questions after sync: ${response.status}`
         );
       }
-      setQuestions(response.data.questions);
+      dispatch(setQuestionsInStore(response.data.questions));
       setTotalQuestions(response.data.totalQuestions);
       setPageNumber(1);
 
@@ -152,7 +183,7 @@ export default function DashboardPage() {
     } finally {
       setIsSyncing(false);
     }
-  }, [pageNumber]);
+  }, [pageNumber, dispatch]);
 
   // Only run API calls after Clerk user state is loaded and user is signed in
   useEffect(() => {
@@ -170,7 +201,8 @@ export default function DashboardPage() {
         if (response.status !== 200) {
           throw new Error(`Failed to fetch questions: ${response.status}`);
         }
-        setQuestions(response.data.questions);
+        // setQuestions(response.data.questions);
+        dispatch(setQuestionsInStore(response.data.questions));
         setTotalQuestions(response.data.totalQuestions);
       } catch (error) {
         console.error("Error fetching questions:", error);
@@ -188,9 +220,10 @@ export default function DashboardPage() {
     };
 
     run();
-  }, [isLoaded, isSignedIn, pageNumber, setPageNumber]);
+  }, [isLoaded, isSignedIn, pageNumber]);
 
   const bookmarkToggle = async (questionId: string) => {
+    dispatch(toggleBookmarkInQuestion(questionId));
     try {
       const response = await axios.patch(
         `api/questions/${questionId}/bookmark`
@@ -198,20 +231,21 @@ export default function DashboardPage() {
       if (response.status !== 200) {
         throw new Error(`Failed to toggle bookmark: ${response.status}`);
       }
-
-      setQuestions((prevQuestions) => {
-        if (!prevQuestions) return [];
-        return prevQuestions.map((q) => {
-          if (q.question?.id == questionId) {
-            return { ...q, bookmarked: !q.bookmarked };
-          }
-          return q;
-        });
-      });
     } catch (error) {
+      dispatch(toggleBookmarkInQuestion(questionId));
+      toast.error("Connection failed. Bookmark not saved.");
       console.error("Error toggling bookmark:", error);
     }
   };
+  // setQuestions((prevQuestions) => {
+  //   if (!prevQuestions) return [];
+  //   return prevQuestions.map((q) => {
+  //     if (q.question?.id == questionId) {
+  //       return { ...q, bookmarked: !q.bookmarked };
+  //     }
+  //     return q;
+  //   });
+  // });
 
   if (isLoading) {
     return (
@@ -244,6 +278,26 @@ export default function DashboardPage() {
 
   return (
     <AppShell>
+      {isSyncing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div
+            className="flex flex-col items-center gap-4 text-center"
+            role="status"
+            aria-live="assertive"
+          >
+            <Spinner className="h-12 w-12 text-white" />
+            <div className="space-y-1">
+              <p className="text-white text-lg font-semibold">
+                Syncing questions
+              </p>
+              <p className="text-neutral-200">
+                Please wait while we are syncing. Do not refresh the page.
+              </p>
+              <p className="text-neutral-200">This may take a few minutes</p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="space-y-8">
         {/* Header */}
         <div className="space-y-2">
@@ -285,14 +339,19 @@ export default function DashboardPage() {
 
         {/* Questions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {questions.map((q) => (
-            <QuestionCard
-              key={q.question?.id}
-              question={q}
-              onBookmarkToggle={bookmarkToggle}
-              onRemove={handleQuestionRemove}
-            />
-          ))}
+          {questions
+            .slice(
+              (pageNumber - 1) * MAX_PER_PAGE_QUESTION,
+              pageNumber * MAX_PER_PAGE_QUESTION
+            )
+            .map((q) => (
+              <QuestionCard
+                key={q.question?.id}
+                question={q}
+                onBookmarkToggle={bookmarkToggle}
+                onRemove={handleQuestionRemove}
+              />
+            ))}
         </div>
 
         {/* pagination */}

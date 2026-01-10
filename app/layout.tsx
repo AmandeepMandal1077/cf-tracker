@@ -11,6 +11,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Button } from "@/components/ui/button";
 import "./globals.css";
 import "katex/dist/katex.min.css";
+import { dark } from "@clerk/themes";
 import StoreProvider from "./storeProvider";
 
 const geistSans = Geist({
@@ -41,7 +42,7 @@ export default function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black`}
           >
             <header className="sticky top-0 z-50 bg-black border-b border-white/10">
-              <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-end gap-3 px-4 sm:px-8">
+              <div className="mx-auto flex h-16 w-full items-center justify-end gap-3 px-4 sm:px-8">
                 <SignedOut>
                   <SignInButton mode="modal">
                     <Button
@@ -59,7 +60,26 @@ export default function RootLayout({
                 </SignedOut>
                 <SignedIn>
                   <UserButton
-                    appearance={{ variables: { colorBackground: "#000" } }}
+                    appearance={{
+                      theme: dark,
+                    }}
+                    // appearance={{
+                    //   baseTheme: undefined,
+                    //   elements: {
+                    //     avatarBox: "w-9 h-9",
+                    //     userButtonPopoverCard:
+                    //       "bg-neutral-900 border border-white/10",
+                    //     userButtonPopoverMain: "bg-neutral-900",
+                    //     userButtonPopoverFooter:
+                    //       "bg-neutral-900 border-t border-white/10",
+                    //     userButtonPopoverActionButton:
+                    //       "text-white hover:bg-white/10",
+                    //     userButtonPopoverActionButtonText: "text-white",
+                    //     userButtonPopoverActionButtonIcon: "text-black",
+                    //     userPreviewMainIdentifier: "text-white",
+                    //     userPreviewSecondaryIdentifier: "text-neutral-400",
+                    //   },
+                    // }}
                   />
                 </SignedIn>
               </div>
