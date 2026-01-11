@@ -2,6 +2,9 @@ import prisma from "@/lib/prisma";
 import { getQuestionInfo } from "@/utils/codeforces-scraper";
 import { auth } from "@clerk/nextjs/server";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ questionId: string }> }

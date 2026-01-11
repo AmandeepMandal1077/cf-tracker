@@ -103,16 +103,14 @@ export async function POST(req: Request) {
       });
 
       if (existingUser) {
-        // User exists, update if needed
+        // User exists, update only if email or handle changed (ID is immutable)
         if (
-          existingUser.id !== id ||
           existingUser.email !== email.email_address ||
           existingUser.userHandle !== userHandle
         ) {
           await prisma.user.update({
             where: { id: existingUser.id },
             data: {
-              id: id, // Update to new ID if changed
               email: email.email_address,
               userHandle: userHandle,
             },

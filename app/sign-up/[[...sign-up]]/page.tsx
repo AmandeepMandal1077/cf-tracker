@@ -19,12 +19,14 @@ export default function Page() {
   const [code, setCode] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [verifyingSubmit, setVerifyingSubmit] = React.useState(false);
+  const [error, setError] = React.useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLoaded || !signUp) return;
     setSubmitting(true);
+    setError("");
     try {
       const res = await axios.get(
         `https://codeforces.com/api/user.info?handles=${userHandle}&checkHistoricHandles=true`
@@ -46,8 +48,23 @@ export default function Page() {
         strategy: "email_code",
       });
       setVerifying(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
+      // Handle specific errors
+      if (err.message && err.message.includes("User Handle")) {
+        setError("Invalid Codeforces handle. Please check and try again.");
+      } else if (err.errors && err.errors.length > 0) {
+        const errorMessage = err.errors[0].message;
+        if (errorMessage.includes("email") && errorMessage.includes("taken")) {
+          setError("This email is already registered. Please sign in instead.");
+        } else if (errorMessage.includes("password")) {
+          setError("Password must be at least 8 characters long.");
+        } else {
+          setError(errorMessage);
+        }
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -57,6 +74,7 @@ export default function Page() {
     e.preventDefault();
     if (!isLoaded) return;
     setVerifyingSubmit(true);
+    setError("");
     try {
       const signUpAttempt = await signUp.attemptEmailAddressVerification({
         code,
@@ -74,9 +92,18 @@ export default function Page() {
         });
       } else {
         console.error("Sign-up attempt not complete:", signUpAttempt);
+        setError("Verification failed. Please try again.");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
+      if (err.errors && err.errors.length > 0) {
+        setError(
+          err.errors[0].message ||
+            "Invalid verification code. Please try again."
+        );
+      } else {
+        setError("Invalid verification code. Please try again.");
+      }
     } finally {
       setVerifyingSubmit(false);
     }
@@ -91,6 +118,11 @@ export default function Page() {
             Enter the 6-digit code sent to your inbox.
           </CardDescription>
         </CardHeader>
+        {error && (
+          <div className="px-6 py-3 mx-6 mb-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-md">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleVerify} className="mt-2 space-y-4">
           <div className="space-y-2">
             <label htmlFor="code" className="text-sm text-white/70">
@@ -128,6 +160,11 @@ export default function Page() {
           Solid, quiet, and fast — no distractions.
         </CardDescription>
       </CardHeader>
+      {error && (
+        <div className="px-6 py-3 mx-6 mb-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-md">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="mt-2 space-y-5">
         <div className="space-y-2">
           <label htmlFor="userhandle" className="text-sm text-white/70">

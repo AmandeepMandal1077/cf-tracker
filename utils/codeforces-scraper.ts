@@ -5,15 +5,27 @@ import {
 import { CodeforcesProblem } from "@/types";
 
 import puppeteer from "puppeteer";
-// import puppeteer from "puppeteer-extra";
-// import StealthPlugin from "puppeteer-extra-plugin-stealth";
-// puppeteer.use(StealthPlugin());
+import chromium from "@sparticuz/chromium";
+const launchBrowser = async () => {
+  const isProd = process.env.NODE_ENV === "production";
+  // const puppeteer = isProd
+  //   ? // eslint-disable-next-line @typescript-eslint/no-var-requires
+  //     require("puppeteer-core")
+  //   : // eslint-disable-next-line @typescript-eslint/no-var-requires
+  //   require("puppeteer");
+
+  return await puppeteer.launch({
+    headless: isProd ? chromium.headless : true,
+    args: isProd
+      ? chromium.args
+      : ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
+    executablePath: isProd ? await chromium.executablePath() : undefined,
+    defaultViewport: isProd ? chromium.defaultViewport : undefined,
+  });
+};
 
 const getUpSolveQuestionsFromContest = async (handle: string) => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
-  });
+  const browser = await launchBrowser();
   // const browser = await puppeteer.launch({
   //   headless: false,
   // });
@@ -117,10 +129,7 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
 };
 
 const getQuestionInfo = async (url: string) => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
-  });
+  const browser = await launchBrowser();
 
   const page = await browser.newPage();
   await page.setUserAgent(

@@ -18,11 +18,13 @@ export default function SignInForm() {
   const [showEmailCode, setShowEmailCode] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
   const [verifyingSubmit, setVerifyingSubmit] = React.useState(false);
+  const [error, setError] = React.useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setError("");
     if (!isLoaded) return;
 
     // Start the sign-in process using the email and password provided
@@ -60,9 +62,26 @@ export default function SignInForm() {
         }
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
+        setError("Unable to sign in. Please try again.");
       }
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
+      // Handle specific Clerk errors
+      if (err.errors && err.errors.length > 0) {
+        const errorMessage = err.errors[0].message;
+        if (
+          errorMessage.includes("password") ||
+          errorMessage.includes("Incorrect")
+        ) {
+          setError("Wrong credentials. Please check your email and password.");
+        } else if (errorMessage.includes("identifier")) {
+          setError("Account not found. Please check your email.");
+        } else {
+          setError(errorMessage);
+        }
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -70,6 +89,7 @@ export default function SignInForm() {
   const handleEmailCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setVerifyingSubmit(true);
+    setError("");
     if (!isLoaded) return;
 
     try {
@@ -87,10 +107,19 @@ export default function SignInForm() {
         });
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
+        setError("Verification failed. Please try again.");
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
+      if (err.errors && err.errors.length > 0) {
+        setError(
+          err.errors[0].message ||
+            "Invalid verification code. Please try again."
+        );
+      } else {
+        setError("Invalid verification code. Please try again.");
+      }
     } finally {
       setVerifyingSubmit(false);
     }
@@ -105,6 +134,11 @@ export default function SignInForm() {
             Enter the 6-digit code sent to your inbox.
           </CardDescription>
         </CardHeader>
+        {error && (
+          <div className="px-6 py-3 mx-6 mb-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-md">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleEmailCode} className="mt-2 space-y-4">
           <div className="space-y-2">
             <label htmlFor="code" className="text-sm text-white/70">
@@ -141,6 +175,11 @@ export default function SignInForm() {
           Solid, quiet, and fast — no distractions.
         </CardDescription>
       </CardHeader>
+      {error && (
+        <div className="px-6 py-3 mx-6 mb-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-md">
+          {error}
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="mt-2 space-y-5">
         <div className="space-y-2">
           <label htmlFor="email" className="text-sm text-white/70">

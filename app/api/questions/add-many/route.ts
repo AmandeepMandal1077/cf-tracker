@@ -3,6 +3,9 @@ import { Question, UserQuestion } from "@/types";
 import { getUpSolveQuestionsFromContest } from "@/utils/codeforces-scraper";
 import { auth } from "@clerk/nextjs/server";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 export async function POST(req: Request) {
   const body = await req.json();
   const { userId } = await auth();
