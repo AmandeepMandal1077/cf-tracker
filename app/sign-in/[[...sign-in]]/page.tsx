@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useSignIn } from "@clerk/nextjs";
+import { useSignIn, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import type { EmailCodeFactor } from "@clerk/types";
 import AuthShell from "@/components/auth/auth-shell";
@@ -12,6 +12,7 @@ import Link from "next/link";
 
 export default function SignInForm() {
   const { isLoaded, signIn, setActive } = useSignIn();
+  const { isSignedIn } = useUser();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [code, setCode] = React.useState("");
@@ -125,6 +126,10 @@ export default function SignInForm() {
     }
   };
 
+  if (isSignedIn) {
+    router.push("/");
+    return null;
+  }
   if (showEmailCode) {
     return (
       <AuthShell>

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useSignUp } from "@clerk/nextjs";
+import { useSignUp, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import AuthShell from "@/components/auth/auth-shell";
@@ -12,6 +12,7 @@ import Link from "next/link";
 
 export default function Page() {
   const { isLoaded, signUp, setActive } = useSignUp();
+  const { isSignedIn } = useUser();
   const [emailAddress, setEmailAddress] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [userHandle, setUserHandle] = React.useState("");
@@ -109,6 +110,10 @@ export default function Page() {
     }
   };
 
+  if (isSignedIn) {
+    router.push("/");
+    return null;
+  }
   if (verifying) {
     return (
       <AuthShell>
