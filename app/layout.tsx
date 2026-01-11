@@ -63,23 +63,6 @@ export default function RootLayout({
                     appearance={{
                       theme: dark,
                     }}
-                    // appearance={{
-                    //   baseTheme: undefined,
-                    //   elements: {
-                    //     avatarBox: "w-9 h-9",
-                    //     userButtonPopoverCard:
-                    //       "bg-neutral-900 border border-white/10",
-                    //     userButtonPopoverMain: "bg-neutral-900",
-                    //     userButtonPopoverFooter:
-                    //       "bg-neutral-900 border-t border-white/10",
-                    //     userButtonPopoverActionButton:
-                    //       "text-white hover:bg-white/10",
-                    //     userButtonPopoverActionButtonText: "text-white",
-                    //     userButtonPopoverActionButtonIcon: "text-black",
-                    //     userPreviewMainIdentifier: "text-white",
-                    //     userPreviewSecondaryIdentifier: "text-neutral-400",
-                    //   },
-                    // }}
                   />
                 </SignedIn>
               </div>
