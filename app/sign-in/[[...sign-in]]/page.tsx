@@ -154,6 +154,7 @@ export default function SignInForm() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             className="bg-black"
+            required
           />
         </div>
 
@@ -169,6 +170,7 @@ export default function SignInForm() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             className="bg-black"
+            required
           />
         </div>
 

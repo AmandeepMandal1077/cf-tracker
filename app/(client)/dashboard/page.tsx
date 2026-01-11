@@ -295,15 +295,17 @@ function DashboardContent() {
               >
                 <Plus className="h-4 w-4" />
               </Button>
-              <Button
-                onClick={handleSync}
-                disabled={isSyncing}
-                className="bg-neutral-600 hover:bg-neutral-700 text-white shrink-0"
-                size="icon"
-                aria-label="Sync submissions"
-              >
-                <RefreshCcw className="h-4 w-4" />
-              </Button>
+              {totalQuestions > 0 && (
+                <Button
+                  onClick={handleSync}
+                  disabled={isSyncing}
+                  className="bg-neutral-600 hover:bg-neutral-700 text-white shrink-0"
+                  size="icon"
+                  aria-label="Sync submissions"
+                >
+                  <RefreshCcw className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
           <p className="text-neutral-400">
@@ -441,13 +443,22 @@ function DashboardContent() {
 
         {/* Empty State */}
         {questions.length === 0 && (
-          <Card className="border-white/10 bg-neutral-950 text-white shadow-none">
-            <CardContent className="flex flex-col items-center justify-center py-16">
-              <p className="text-neutral-400 text-lg">
-                No questions found. Start solving problems on Codeforces!
+          <div className="flex flex-col items-center justify-center py-24 space-y-6">
+            <p className="text-neutral-400 text-xl">No questions found</p>
+            <div className="flex flex-col items-center gap-3">
+              <Button
+                onClick={handleSync}
+                disabled={isSyncing}
+                className="bg-white hover:bg-white/80 text-black px-8 py-6 text-lg"
+              >
+                <RefreshCcw className="h-5 w-5 mr-2" />
+                Sync Now
+              </Button>
+              <p className="text-neutral-500 text-sm">
+                Try Syncing to see new Questions
               </p>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
       </div>
     </AppShell>

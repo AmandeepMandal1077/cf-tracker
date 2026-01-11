@@ -94,14 +94,41 @@ export async function POST(req: Request) {
           status: 400,
         });
       }
-      await prisma.user.create({
-        data: {
-          id: id,
-          email: email.email_address,
-          isSubscribed: false,
-          userHandle: userHandle,
+
+      // Check if user already exists by email or id
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          OR: [{ id: id }, { email: email.email_address }],
         },
       });
+
+      if (existingUser) {
+        // User exists, update if needed
+        if (
+          existingUser.id !== id ||
+          existingUser.email !== email.email_address ||
+          existingUser.userHandle !== userHandle
+        ) {
+          await prisma.user.update({
+            where: { id: existingUser.id },
+            data: {
+              id: id, // Update to new ID if changed
+              email: email.email_address,
+              userHandle: userHandle,
+            },
+          });
+        }
+      } else {
+        // Create new user
+        await prisma.user.create({
+          data: {
+            id: id,
+            email: email.email_address,
+            isSubscribed: false,
+            userHandle: userHandle,
+          },
+        });
+      }
     } catch (error) {
       console.error("Error creating user:", error);
       if (error instanceof Error) {

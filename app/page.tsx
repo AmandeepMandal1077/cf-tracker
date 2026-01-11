@@ -17,7 +17,7 @@ import { useUser } from "@clerk/nextjs";
 export default function Home() {
   const { isSignedIn } = useUser();
   return (
-    <div className="fixed inset-0 top-16 bg-black overflow-hidden">
+    <div className="inset-0 top-16 bg-black m-4">
       <div className="flex flex-col items-center justify-center h-full">
         {/* Hero Section */}
         <div className="text-center space-y-6 max-w-3xl">

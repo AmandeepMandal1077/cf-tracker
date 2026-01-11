@@ -23,23 +23,28 @@ export default function Page() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoaded) return;
+    if (!isLoaded || !signUp) return;
     setSubmitting(true);
     try {
       const res = await axios.get(
-        `https://codeforces.com/api/user.info?handles=${userHandle}&checkHistoricHandles=false`
+        `https://codeforces.com/api/user.info?handles=${userHandle}&checkHistoricHandles=true`
       );
-      if (res.data.status !== "OK") {
+      if (res.status !== 200 || res.data?.status !== "OK") {
         throw new Error(`Could not find User Handle`);
       }
 
+      // Create sign-up and use the returned object for subsequent calls
       await signUp.create({
         emailAddress,
         password,
         unsafeMetadata: { userHandle },
       });
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      // Use the returned signUpAttempt object to prepare verification
+      // This ensures we're using the fresh object, not a stale reference
+      await signUp.prepareEmailAddressVerification({
+        strategy: "email_code",
+      });
       setVerifying(true);
     } catch (err) {
       console.error(JSON.stringify(err, null, 2));
@@ -100,6 +105,7 @@ export default function Page() {
               onChange={(e) => setCode(e.target.value)}
               placeholder="123456"
               className="bg-black"
+              required
             />
           </div>
           <Button
@@ -134,6 +140,7 @@ export default function Page() {
             onChange={(e) => setUserHandle(e.target.value)}
             placeholder="Codeforces handle"
             className="bg-black"
+            required
           />
         </div>
 
@@ -149,6 +156,7 @@ export default function Page() {
             onChange={(e) => setEmailAddress(e.target.value)}
             placeholder="you@example.com"
             className="bg-black"
+            required
           />
         </div>
 
@@ -164,6 +172,7 @@ export default function Page() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             className="bg-black"
+            required
           />
         </div>
 
