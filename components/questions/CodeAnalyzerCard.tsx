@@ -36,6 +36,7 @@ export default function CodeAnalyzerCard({
 }: CodeAnalyzerCardProps) {
   const editorRef = useRef(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleEditorDidMount(editor: any) {
     editorRef.current = editor;
   }

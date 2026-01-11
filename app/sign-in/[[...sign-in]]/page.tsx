@@ -88,6 +88,7 @@ export default function SignInForm() {
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error(JSON.stringify(err, null, 2));
     } finally {
