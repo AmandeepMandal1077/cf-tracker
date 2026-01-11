@@ -63,6 +63,7 @@ export default function CodeAnalyzerCard({
                   <SelectItem value="java">Java</SelectItem>
                   <SelectItem value="javascript">Javascript</SelectItem>
                   <SelectItem value="typescript">Typescript</SelectItem>
+                  <SelectItem value="go">Go</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -74,7 +75,11 @@ export default function CodeAnalyzerCard({
           height="100%"
           defaultLanguage="javascript"
           language={codeLanguage}
-          defaultValue="// write your solution"
+          options={{
+            minimap: {
+              enabled: false,
+            },
+          }}
           theme="vs-dark"
           onMount={handleEditorDidMount}
           onChange={handleEditorChange}

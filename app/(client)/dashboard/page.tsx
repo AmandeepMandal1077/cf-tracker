@@ -5,7 +5,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ratelimiter } from "@/lib/rate-limiter";
-import { UserQuestion } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
@@ -104,15 +103,6 @@ export default function DashboardPage() {
         dispatch(removeQuestionFromStore(questionId));
         setTotalQuestions((prev) => prev - 1);
 
-        // Refetch questions to update UI
-        // const response = await axios.get(`/api/questions?page=${pageNumber}`);
-        // if (response.status === 200) {
-        //   // setQuestions(response.data.questions);
-        //   dispatch(setQuestionsInStore(response.data.questions));
-        //   setTotalQuestions((prev) => prev - 1);
-        //   setPageNumber(1);
-        // }
-
         return true;
       } catch (err) {
         toast.error("Failed to remove question. Please try again.");
@@ -141,13 +131,6 @@ export default function DashboardPage() {
       setTotalQuestions((prev) => prev + 1);
       setPageNumber(1);
       dispatch(addQuestionToStoreFront(res.data.question));
-
-      // Refetch questions to update UI
-      // const response = await axios.get(`/api/questions?page=${1}`);
-      // if (response.status === 200) {
-      //   dispatch(setQuestionsInStore(response.data.questions));
-      //   setTotalQuestions((prev) => prev + 1);
-      // }
 
       return true;
     } catch (err) {
@@ -237,16 +220,6 @@ export default function DashboardPage() {
       console.error("Error toggling bookmark:", error);
     }
   };
-  // setQuestions((prevQuestions) => {
-  //   if (!prevQuestions) return [];
-  //   return prevQuestions.map((q) => {
-  //     if (q.question?.id == questionId) {
-  //       return { ...q, bookmarked: !q.bookmarked };
-  //     }
-  //     return q;
-  //   });
-  // });
-
   if (isLoading) {
     return (
       <AppShell>

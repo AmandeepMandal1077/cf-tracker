@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest } from "next/server";
 
-const MAX_PER_PAGE_QUESTION = 9;
+// const MAX_PER_PAGE_QUESTION = 9;
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
 
@@ -12,8 +12,8 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const pageNumber: number =
-    parseInt(req.nextUrl.searchParams.get("page") || "1") || 1;
+  // const pageNumber: number =
+  //   parseInt(req.nextUrl.searchParams.get("page") || "1") || 1;
   let questions;
   let totalQuestions;
   try {

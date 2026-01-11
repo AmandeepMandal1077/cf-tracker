@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
+import { NextResponse } from "next/server";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || "",
@@ -42,15 +43,49 @@ Code: ${code}
 `;
 
   try {
-    const response = await ai.models.generateContent({
+    const stream = await ai.models.generateContentStream({
       model: "gemini-2.5-flash",
       contents: prompt,
+      config: {
+        temperature: 0.2,
+      },
     });
 
-    const result = response.text;
+    const encoder = new TextEncoder();
 
-    console.log("AI Analysis Result:", result);
-    return new Response(JSON.stringify({ analysis: result }), { status: 200 });
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        const send = (event: string, data: any) => {
+          controller.enqueue(encoder.encode(`event: ${event}\n`));
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(data)}\n\n`)
+          );
+        };
+
+        try {
+          send("start", { ok: true });
+
+          for await (const chunk of stream) {
+            const text = chunk.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+            if (text) send("token", { text });
+          }
+
+          send("done", { ok: true });
+        } catch (err: any) {
+          send("error", { message: err?.message ?? "Stream error" });
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(readableStream, {
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+      },
+    });
   } catch (error: any) {
     if (error.status === 429) {
       return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {

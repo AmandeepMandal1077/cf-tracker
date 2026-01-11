@@ -38,7 +38,6 @@ export default function SignInForm() {
         await setActive({
           session: signInAttempt.createdSessionId,
           navigate: async ({ session }) => {
-            if (session?.currentTask) console.log(session?.currentTask);
             router.push("/");
           },
         });
@@ -83,7 +82,6 @@ export default function SignInForm() {
         await setActive({
           session: signInAttempt.createdSessionId,
           navigate: async ({ session }) => {
-            if (session?.currentTask) console.log(session?.currentTask);
             router.push("/");
           },
         });

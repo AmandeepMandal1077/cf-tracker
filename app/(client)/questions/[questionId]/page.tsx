@@ -4,9 +4,7 @@ import { CodeforcesProblem, UserQuestion } from "@/types";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import ProblemInfoCard from "@/components/questions/ProblemInfoCard";
 import ProblemDescriptionCard from "@/components/questions/ProblemDescriptionCard";
@@ -50,20 +48,63 @@ export default function QuestionPage() {
     }
   };
 
+  async function streamAI(code: string, onToken: (t: string) => void) {
+    const res = await fetch("/api/code-analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question: JSON.stringify({
+          statement: rawProblemStatement?.statement,
+          inputStatement: rawProblemStatement?.inputStatement,
+          outputStatement: rawProblemStatement?.outputStatement,
+          examples: rawProblemStatement?.examples,
+          note: rawProblemStatement?.note,
+        }),
+        code: code,
+      }),
+    });
+
+    if (!res.ok || !res.body) throw new Error("Streaming failed");
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // SSE frames end with \n\n
+      const frames = buffer.split("\n\n");
+      buffer = frames.pop() || "";
+
+      for (const frame of frames) {
+        const event = frame.match(/^event:\s*(.*)$/m)?.[1];
+        const data = frame.match(/^data:\s*(.*)$/m)?.[1];
+
+        if (!event || !data) continue;
+
+        const payload = JSON.parse(data);
+
+        if (event === "token") onToken(payload.text);
+        if (event === "done") return;
+        if (event === "error") throw new Error(payload.message);
+      }
+    }
+  }
+
   const handleCodeAnalysis = async (code: string) => {
     if (!question) return;
 
     try {
+      setCodeAnalysis("");
       setIsAnalyzing(true);
-      const response = await axios.post(`/api/code-analyze`, {
-        question: JSON.stringify(rawProblemStatement),
-        code: code,
+      await streamAI(code, (token) => {
+        setCodeAnalysis((prev) => prev + token);
       });
-      if (response.status !== 200) {
-        throw new Error(`Failed to analyze code: ${response.status}`);
-      }
-
-      setCodeAnalysis(response.data.analysis);
+      setIsAnalyzing(false);
     } catch (error) {
       console.error("Error analyzing code:", error);
     } finally {
@@ -112,7 +153,7 @@ export default function QuestionPage() {
         setFormattedProblemStatement(problemFormatted);
         setRawProblemStatement(problemRaw);
       } catch (err) {
-        console.log(`Error fetching question: ${err}`);
+        console.error(`Error fetching question: ${err}`);
       }
     }
     if (!questionId) return;

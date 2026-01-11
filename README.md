@@ -20,15 +20,30 @@ A sleek, minimalist Codeforces upsolving companion that helps you manage and con
    bun install
    ```
 
-3. Set up your environment variables (copy from `env.example`)
+3. Set up your environment variables:
 
-4. Run the development server:
+   - Copy `example.env` to `.env`
+   - Add your Neon database connection string to `DATABASE_URL`
+   - Add your Clerk authentication keys
+   - Add your Gemini API key for AI code analysis
+
+4. Set up the database:
+
+   ```bash
+   # Push the Prisma schema to your Neon database
+   npx prisma db push
+
+   # Generate the Prisma Client
+   npx prisma generate
+   ```
+
+5. Run the development server:
 
    ```bash
    bun dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000) and sign in with Clerk to start tracking your progress
+6. Open [http://localhost:3000](http://localhost:3000) and sign in with Clerk to start tracking your progress
 
 ## 🛠️ Tech Stack
 
@@ -46,6 +61,17 @@ A sleek, minimalist Codeforces upsolving companion that helps you manage and con
 - `/lib` - Utility functions and hooks
 - `/prisma` - Database schema and migrations
 - `/utils` - Helper functions for Codeforces API integration
+
+## 🔮 Future Scope
+
+- **Multi-Platform Support**: Expand beyond Codeforces to cover LeetCode and CodeChef problems
+- **Code Execution**: Execute code directly within the app with support for multiple programming languages
+- **Advanced Progress Tracking**: Track and visualize the number of solved vs. unsolved questions with detailed analytics
+- **Premium Features**: Unlock premium tier with advanced features including:
+  - Flexible payment methods for subscription management
+  - Enhanced AI analysis with more detailed explanations
+  - Advanced filtering and sorting options
+  - Priority support
 
 ## 🤝 Contributing
 

@@ -10,13 +10,13 @@ import puppeteer from "puppeteer";
 // puppeteer.use(StealthPlugin());
 
 const getUpSolveQuestionsFromContest = async (handle: string) => {
-  // const browser = await puppeteer.launch({
-  //   headless: true,
-  //   args: ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
-  // });
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
+    args: ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
   });
+  // const browser = await puppeteer.launch({
+  //   headless: false,
+  // });
   try {
     const page = await browser.newPage();
     await page.setUserAgent(
@@ -53,7 +53,7 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
       const resJson = await res.json();
 
       if (resJson.status !== "OK") {
-        console.log(`Failed to fetch standings for contest ${contestId}`);
+        console.error(`Failed to fetch standings for contest ${contestId}`);
         break;
       }
 
@@ -75,7 +75,7 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
       });
       const problemRes = resJson.result.rows?.at(0)?.problemResults;
       if (!problemRes) {
-        console.log(`No problem results for contest ${contestId}`);
+        console.warn(`No problem results for contest ${contestId}`);
         continue;
       }
       let solvedFound = false;
@@ -106,7 +106,7 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
 
     return out;
   } catch (err) {
-    console.log("Error in getUpSolveQuestionsFromContest:", err);
+    console.error("Error in getUpSolveQuestionsFromContest:", err);
     return [];
   } finally {
     if (browser.connected) {
@@ -117,8 +117,7 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
 
 const getQuestionInfo = async (url: string) => {
   const browser = await puppeteer.launch({
-    // headless: true,
-    headless: false,
+    headless: true,
     args: ["--no-sandbox", "--disable-blink-features=AutomationControlled"],
   });
 
@@ -174,8 +173,6 @@ const getQuestionInfo = async (url: string) => {
       } elements instead of at least 4`
     );
   }
-
-  // console.log(result);
 
   if (result[4]) {
     result[4] = result[4]
@@ -238,7 +235,6 @@ const getQuestionInfo = async (url: string) => {
     noteFormatted: codeforcesDescriptionFormat(obj.note),
   };
 
-  console.log(problemDetails);
   return problemDetails;
 };
 

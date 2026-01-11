@@ -116,9 +116,6 @@ export async function POST(req: Request) {
     const toUpSolveQuestions: UserQuestion[] =
       await getUpSolveQuestionsFromContest(userHandle);
 
-    console.log("Upsolved Questions fetched:", toUpSolveQuestions.length);
-    console.log(toUpSolveQuestions);
-
     for (const question of toUpSolveQuestions) {
       const problemLink = `https://codeforces.com/problemset/problem/${question.questionId.replace(
         "_",
