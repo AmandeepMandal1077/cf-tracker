@@ -6,11 +6,8 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: ["e71307a11404.ngrok-free.app", "localhost:3000", "*"],
     },
-    // serverComponentsExternalPackages: [
-    //   "puppeteer-extra",
-    //   "puppeteer-extra-plugin-stealth",
-    // ],
   },
+  serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg"],
 };
 
 export default nextConfig;
