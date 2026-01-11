@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "cf-tracker.vercel.app"],
+      allowedOrigins: ["localhost:3000", "https://cf-tracker-nine.vercel.app/"],
     },
   },
   serverExternalPackages: ["pg", "@prisma/adapter-pg"],
