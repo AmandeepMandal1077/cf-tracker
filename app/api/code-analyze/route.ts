@@ -1,6 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
-import { NextResponse } from "next/server";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || "",
@@ -55,6 +54,7 @@ Code: ${code}
 
     const readableStream = new ReadableStream({
       async start(controller) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const send = (event: string, data: any) => {
           controller.enqueue(encoder.encode(`event: ${event}\n`));
           controller.enqueue(
@@ -71,6 +71,7 @@ Code: ${code}
           }
 
           send("done", { ok: true });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
           send("error", { message: err?.message ?? "Stream error" });
         } finally {
@@ -86,6 +87,7 @@ Code: ${code}
         Connection: "keep-alive",
       },
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.status === 429) {
       return new Response(JSON.stringify({ error: "Rate limit exceeded" }), {

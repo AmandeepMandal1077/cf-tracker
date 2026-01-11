@@ -60,7 +60,8 @@ const getUpSolveQuestionsFromContest = async (handle: string) => {
       // const allProblems = resJson.result.problems.map(
       //   (p) => `${contestId}_${p.index}`
       // );
-      const allProblems = resJson.result.problems.map((p) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const allProblems = resJson.result.problems.map((p: any) => {
         return {
           questionId: `${contestId}_${p.index}`,
           verdict: "Unattempted",

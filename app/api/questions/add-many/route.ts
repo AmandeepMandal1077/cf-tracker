@@ -22,12 +22,17 @@ export async function POST(req: Request) {
       );
     }
 
-    faultySubs.sort((a, b) => b.creationTimeSeconds - a.creationTimeSeconds);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    faultySubs.sort(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (a: any, b: any) => b.creationTimeSeconds - a.creationTimeSeconds
+    );
     const problemMap: Map<string, boolean> = new Map<string, boolean>();
 
     const faultySubsData: Question[] = [];
 
-    faultySubs.forEach(async (sub) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    faultySubs.forEach(async (sub: any) => {
       const problemId: string = sub.problem.contestId + "_" + sub.problem.index;
       if (problemMap.has(problemId)) {
         return;
@@ -62,14 +67,16 @@ export async function POST(req: Request) {
         }
       }
     });
-    const questionBankData = faultySubsData.map((item) => ({
-      id: item.id,
-      platform: item.platform,
-      name: item.name,
-      link: item.link,
-      rating: item.rating,
-      tags: item.tags,
-    }));
+    const questionBankData = faultySubsData
+      .filter((item) => item.id !== undefined)
+      .map((item) => ({
+        id: item.id!,
+        platform: item.platform,
+        name: item.name,
+        link: item.link,
+        rating: item.rating ?? null,
+        tags: item.tags ?? [],
+      }));
 
     // TODO: update QuestionBank with faultySubsData
     await prisma.questionBank.createMany({
@@ -78,18 +85,21 @@ export async function POST(req: Request) {
     });
 
     // TODO: sync with QuestionBank
-    const userQuestionsData = faultySubsData.map((item) => ({
-      userId: item.userId,
-      questionId: item.id,
-      bookmarked: false,
-      createdAt: new Date(),
-      verdict: item.verdict,
-    }));
+    const userQuestionsData = faultySubsData
+      .filter((item) => item.id !== undefined)
+      .map((item) => ({
+        userId: item.userId!,
+        questionId: item.id!,
+        bookmarked: false,
+        createdAt: new Date(),
+        verdict: item.verdict,
+      }));
 
     await prisma.userQuestions.createMany({
       data: userQuestionsData,
       skipDuplicates: true,
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error("Error in add-many:", err);
     return new Response(
@@ -151,6 +161,7 @@ export async function POST(req: Request) {
         },
       });
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     return new Response(
       JSON.stringify({

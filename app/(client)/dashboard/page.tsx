@@ -428,7 +428,7 @@ export default function DashboardPage() {
                       // href="#"
                       className="cursor-pointer"
                       onClick={() =>
-                        setPageNumber((prev) => Math.min(totalPages, prev + 1))
+                        setPageNumber(Math.min(totalPages, pageNumber + 1))
                       }
                     />
                   </PaginationItem>
