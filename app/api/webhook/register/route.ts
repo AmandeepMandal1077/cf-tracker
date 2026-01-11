@@ -5,8 +5,6 @@ import { Webhook } from "svix";
 
 //TODO: Add questions related to User
 export async function POST(req: Request) {
-  console.log("=== Webhook POST request received ===");
-
   const svixSecret = process.env.SVIX_WEBHOOK_SECRET;
   if (!svixSecret) {
     console.error("SVIX webhook secret not configured");
@@ -36,8 +34,6 @@ export async function POST(req: Request) {
   const body = await req.json();
   const payload = JSON.stringify(body);
 
-  // console.log("Webhook payload:", payload);
-
   //   return new Response(`${payload}`, { status: 501 });
   const wh = new Webhook(svixSecret);
 
@@ -53,8 +49,6 @@ export async function POST(req: Request) {
 
   const { id } = event.data;
   const eventType = event.type;
-
-  // console.log("Webhook event received:", eventType, "User ID:", id);
 
   if (eventType === "user.created") {
     try {
@@ -92,7 +86,6 @@ export async function POST(req: Request) {
       }
 
       // Store the email and emailId in your database
-      console.log("Creating user with email:", email.email_address, "ID:", id);
 
       const userHandle = event.data.unsafe_metadata?.userHandle as string;
       if (!userHandle) {
@@ -101,7 +94,7 @@ export async function POST(req: Request) {
           status: 400,
         });
       }
-      const newUser = await prisma.user.create({
+      await prisma.user.create({
         data: {
           id: id,
           email: email.email_address,
@@ -109,8 +102,6 @@ export async function POST(req: Request) {
           userHandle: userHandle,
         },
       });
-
-      console.log("New user created successfully:", newUser);
     } catch (error) {
       console.error("Error creating user:", error);
       if (error instanceof Error) {

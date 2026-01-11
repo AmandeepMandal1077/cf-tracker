@@ -57,8 +57,6 @@ export async function getUsrInfo() {
     });
 
     return result;
-  } else {
-    console.log("Rate limiter in effect, skipping API call");
   }
 }
 
@@ -122,8 +120,6 @@ export async function getUserSubmissions() {
         throw err;
       }
     });
-  } else {
-    console.log("Rate limiter in effect, skipping API call");
   }
 
   return faultySubs;
@@ -180,8 +176,6 @@ export async function fetchQuestionDetailsViaURL(questionUrl: string) {
         throw err;
       }
     });
-  } else {
-    console.log("Rate limiter in effect, skipping API call");
   }
   return questionDetails;
 }

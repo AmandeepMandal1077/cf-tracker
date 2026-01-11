@@ -8,6 +8,7 @@ import AuthShell from "@/components/auth/auth-shell";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import Link from "next/link";
 
 export default function Page() {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -60,7 +61,6 @@ export default function Page() {
           session: signUpAttempt.createdSessionId,
           navigate: async ({ session }) => {
             if (session?.currentTask) {
-              console.log(session?.currentTask);
               router.push("/sign-up/tasks");
               return;
             }
@@ -180,12 +180,12 @@ export default function Page() {
 
         <div className="text-sm text-white/60">
           Already have an account?{" "}
-          <a
+          <Link
             href="/sign-in"
             className="text-white hover:text-white/90 transition-colors duration-150 ease-linear"
           >
             Sign in
-          </a>
+          </Link>
         </div>
       </form>
     </AuthShell>

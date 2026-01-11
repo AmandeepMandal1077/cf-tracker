@@ -20,7 +20,6 @@ export async function GET(
     "/"
   )}`;
 
-  // console.log("Fetching question details for:", questionId);
   // Need optimization
   try {
     let question = await prisma.userQuestions.findUnique({
@@ -39,9 +38,7 @@ export async function GET(
     if (!question?.question.problemStatement) {
       let problemDetails: any;
       try {
-        // console.log("Scraping question details for:", url);
         problemDetails = await getQuestionInfo(url);
-        // console.log("Scraped question details successfully");
       } catch (err) {
         return new Response(
           JSON.stringify({ error: `Error scraping question: ${err}` }),
