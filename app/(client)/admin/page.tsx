@@ -1,3 +1,5 @@
+"use client";
+
 import AppShell from "@/components/layouts/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import axios from "axios";

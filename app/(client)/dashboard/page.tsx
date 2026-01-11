@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ratelimiter } from "@/lib/rate-limiter";
@@ -68,7 +68,8 @@ async function getUserQuestions() {
 }
 
 const MAX_PER_PAGE_QUESTION = 9;
-export default function DashboardPage() {
+
+function DashboardContent() {
   const { isLoaded, isSignedIn } = useUser();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -450,5 +451,40 @@ export default function DashboardPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <AppShell>
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-64 bg-white/5 rounded-lg" />
+              <Skeleton className="h-6 w-96 bg-white/5 rounded-lg" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Card
+                  key={i}
+                  className="border-white/10 bg-neutral-950 text-white shadow-none"
+                >
+                  <CardHeader>
+                    <Skeleton className="h-6 w-3/4 bg-white/10 rounded-lg" />
+                    <Skeleton className="h-4 w-1/2 bg-white/10 rounded-lg" />
+                  </CardHeader>
+                  <CardContent>
+                    <Skeleton className="h-20 w-full bg-white/10 rounded-lg" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </AppShell>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
