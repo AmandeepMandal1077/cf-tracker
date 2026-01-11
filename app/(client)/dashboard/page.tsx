@@ -420,7 +420,10 @@ function DashboardContent() {
                   </PaginationItem>
                 )}
                 <PaginationItem>
-                  <PaginationLink onClick={() => setPageNumber(totalPages)}>
+                  <PaginationLink
+                    href="#"
+                    onClick={() => setPageNumber(totalPages)}
+                  >
                     {totalPages}
                   </PaginationLink>
                 </PaginationItem>
