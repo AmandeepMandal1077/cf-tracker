@@ -230,7 +230,7 @@ function DashboardContent() {
             <Skeleton className="h-6 w-96 bg-white/5 rounded-lg" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
+            {[...Array(9)].map((_, i) => (
               <Card
                 key={i}
                 className="border-white/10 bg-neutral-950 text-white shadow-none"
@@ -479,7 +479,7 @@ export default function DashboardPage() {
               <Skeleton className="h-6 w-96 bg-white/5 rounded-lg" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
+              {[...Array(9)].map((_, i) => (
                 <Card
                   key={i}
                   className="border-white/10 bg-neutral-950 text-white shadow-none"

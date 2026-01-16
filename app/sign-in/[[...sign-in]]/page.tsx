@@ -22,6 +22,12 @@ export default function SignInForm() {
   const [error, setError] = React.useState("");
   const router = useRouter();
 
+  React.useEffect(() => {
+    if (isSignedIn) {
+      router.push("/");
+    }
+  }, [isSignedIn, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -127,7 +133,6 @@ export default function SignInForm() {
   };
 
   if (isSignedIn) {
-    router.push("/");
     return null;
   }
   if (showEmailCode) {
