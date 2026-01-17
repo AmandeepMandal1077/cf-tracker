@@ -4,20 +4,26 @@ import {
 } from "./cf-formatter";
 import { CodeforcesProblem } from "@/types";
 
-// import puppeteer from "puppeteer";
 import chromium from "@sparticuz/chromium";
+import puppeteerCore from "puppeteer-core";
+import { addExtra } from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
 const launchBrowser = async () => {
     const isProd = process.env.NODE_ENV === "production";
-    const puppeteer = isProd
-        ? await import("puppeteer-core")
-        : await import("puppeteer");
-    // const puppeteer = isProd
-    //   ? // eslint-disable-next-line @typescript-eslint/no-var-requires
-    //     require("puppeteer-core")
-    //   : // eslint-disable-next-line @typescript-eslint/no-var-requires
-    //   require("puppeteer");
+    let puppeteer;
 
-    return await puppeteer.default.launch({
+    if (isProd) {
+        puppeteer = addExtra(puppeteerCore);
+    } else {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const puppeteerLocal = await import("puppeteer");
+        puppeteer = addExtra(puppeteerLocal.default);
+    }
+
+    puppeteer.use(StealthPlugin());
+
+    return await puppeteer.launch({
         headless: isProd ? chromium.headless : true,
         args: isProd
             ? chromium.args
