@@ -3,9 +3,6 @@ import { Question, UserQuestion } from "@/types";
 import { getUpSolveQuestionsFromContest } from "@/utils/codeforces-scraper";
 import { auth } from "@clerk/nextjs/server";
 
-export const runtime = "nodejs";
-export const maxDuration = 60;
-
 export async function POST(req: Request) {
   const body = await req.json();
   const { userId } = await auth();
@@ -50,7 +47,7 @@ export async function POST(req: Request) {
         rating: sub.problem.rating,
         tags: sub.problem.tags,
         verdict: sub.verdict,
-        createdAt: new Date(),
+        createdAt: new Date(sub.creationTimeSeconds * 1000),
         userId: userId,
       };
 
@@ -94,7 +91,7 @@ export async function POST(req: Request) {
         userId: item.userId!,
         questionId: item.id!,
         bookmarked: false,
-        createdAt: new Date(),
+        createdAt: item.createdAt,
         verdict: item.verdict,
       }));
 
@@ -148,6 +145,7 @@ export async function POST(req: Request) {
           user: {
             connect: { id: userId },
           },
+          createdAt: question.createdAt,
           question: {
             connectOrCreate: {
               where: { id: question.questionId },

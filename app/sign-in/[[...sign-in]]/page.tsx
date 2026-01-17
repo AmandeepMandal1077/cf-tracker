@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { useSignIn, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import type { EmailCodeFactor } from "@clerk/types";
@@ -13,22 +13,22 @@ import Link from "next/link";
 export default function SignInForm() {
   const { isLoaded, signIn, setActive } = useSignIn();
   const { isSignedIn } = useUser();
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [code, setCode] = React.useState("");
-  const [showEmailCode, setShowEmailCode] = React.useState(false);
-  const [submitting, setSubmitting] = React.useState(false);
-  const [verifyingSubmit, setVerifyingSubmit] = React.useState(false);
-  const [error, setError] = React.useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [showEmailCode, setShowEmailCode] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [verifyingSubmit, setVerifyingSubmit] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isSignedIn) {
       router.push("/");
     }
   }, [isSignedIn, router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError("");
@@ -93,7 +93,7 @@ export default function SignInForm() {
       setSubmitting(false);
     }
   };
-  const handleEmailCode = async (e: React.FormEvent) => {
+  const handleEmailCode = async (e: FormEvent) => {
     e.preventDefault();
     setVerifyingSubmit(true);
     setError("");

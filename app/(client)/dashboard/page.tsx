@@ -18,7 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Plus, RefreshCcw } from "lucide-react";
+import { Plus, RefreshCcw, Search } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import AppShell from "@/components/layouts/app-shell";
 import { toast } from "sonner";
@@ -78,13 +78,19 @@ function DashboardContent() {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [filteredQuestions, setFilteredQuestions] = useState<typeof questions>(
+    []
+  );
+  const [totalQuestions, setTotalQuestions] = useState<number>(0);
+  const totalPages = Math.ceil(totalQuestions / MAX_PER_PAGE_QUESTION);
+
+  const [filteredTotalPages, setFilteredTotalPages] =
+    useState<number>(totalPages);
 
   const questions = useAppSelector(selectQuestions);
   const [newQuestionLink, setNewQuestionLink] = useState<string>("");
   const [isAddingQuestion, setIsAdding] = useState<boolean>(false);
-
-  const [totalQuestions, setTotalQuestions] = useState<number>(0);
-  const totalPages = Math.ceil(totalQuestions / MAX_PER_PAGE_QUESTION);
 
   const setPageNumber = (page: number) => {
     router.push(`/dashboard?page=${page}`);
@@ -168,6 +174,25 @@ function DashboardContent() {
       setIsSyncing(false);
     }
   }, [pageNumber, dispatch]);
+
+  //searchQuery
+  useEffect(() => {
+    const id = setTimeout(() => {
+      const filtered = questions.filter((q) => {
+        return (
+          q.question?.name
+            .toLowerCase()
+            .startsWith(searchQuery.toLowerCase()) || searchQuery === ""
+        );
+      });
+      setFilteredQuestions(filtered);
+      setFilteredTotalPages(Math.ceil(filtered.length / MAX_PER_PAGE_QUESTION));
+      if (searchQuery !== "") {
+        setPageNumber(1);
+      }
+    }, 300);
+    return () => clearTimeout(id);
+  }, [searchQuery, questions]);
 
   // Only run API calls after Clerk user state is loaded and user is signed in
   useEffect(() => {
@@ -279,6 +304,18 @@ function DashboardContent() {
             <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
               Problem Dashboard
             </h1>
+            <div className="flex items-center gap-2 flex-1 max-w-md">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                <Input
+                  type="text"
+                  placeholder="Search questions..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 w-full"
+                />
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <Input
                 type="text"
@@ -315,7 +352,7 @@ function DashboardContent() {
 
         {/* Questions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {questions
+          {filteredQuestions
             .slice(
               (pageNumber - 1) * MAX_PER_PAGE_QUESTION,
               pageNumber * MAX_PER_PAGE_QUESTION
@@ -330,19 +367,53 @@ function DashboardContent() {
             ))}
         </div>
 
+        {/* No filtered results */}
+        {filteredQuestions.length === 0 && questions.length > 0 && (
+          <div className="flex flex-col items-center justify-center py-24 space-y-6">
+            <p className="text-neutral-400 text-xl">No questions found</p>
+            <p className="text-neutral-500 text-sm">
+              Try adjusting your search filters
+            </p>
+          </div>
+        )}
+
         {/* pagination */}
-        {totalPages <= 5 ? (
+        {filteredTotalPages <= 5 ? (
           <div>
             <Pagination>
               <PaginationContent>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (i) => (
-                    <PaginationItem key={i}>
-                      <PaginationLink href="#" onClick={() => setPageNumber(i)}>
-                        {i}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )
+                {/* previous page */}
+                {pageNumber > 1 && (
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={() => setPageNumber(pageNumber - 1)}
+                    ></PaginationPrevious>
+                  </PaginationItem>
+                )}
+                {Array.from(
+                  { length: filteredTotalPages },
+                  (_, i) => i + 1
+                ).map((i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink href="#" onClick={() => setPageNumber(i)}>
+                      {i}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                {/* next page */}
+                {pageNumber < filteredTotalPages && (
+                  <PaginationItem>
+                    <PaginationNext
+                      // href="#"
+                      className="cursor-pointer"
+                      onClick={() =>
+                        setPageNumber(
+                          Math.min(filteredTotalPages, pageNumber + 1)
+                        )
+                      }
+                    />
+                  </PaginationItem>
                 )}
               </PaginationContent>
             </Pagination>
@@ -384,11 +455,14 @@ function DashboardContent() {
                     href="#"
                     onClick={() =>
                       setPageNumber(
-                        Math.min(totalPages - 3, Math.max(3, pageNumber))
+                        Math.min(
+                          filteredTotalPages - 3,
+                          Math.max(3, pageNumber)
+                        )
                       )
                     }
                   >
-                    {Math.min(totalPages - 3, Math.max(3, pageNumber))}
+                    {Math.min(filteredTotalPages - 3, Math.max(3, pageNumber))}
                   </PaginationLink>
                 </PaginationItem>
 
@@ -397,15 +471,21 @@ function DashboardContent() {
                     href="#"
                     onClick={() =>
                       setPageNumber(
-                        Math.min(totalPages - 2, Math.max(4, pageNumber + 1))
+                        Math.min(
+                          filteredTotalPages - 2,
+                          Math.max(4, pageNumber + 1)
+                        )
                       )
                     }
                   >
-                    {Math.min(totalPages - 2, Math.max(4, pageNumber + 1))}
+                    {Math.min(
+                      filteredTotalPages - 2,
+                      Math.max(4, pageNumber + 1)
+                    )}
                   </PaginationLink>
                 </PaginationItem>
 
-                {pageNumber < totalPages - 2 ? (
+                {pageNumber < filteredTotalPages - 2 ? (
                   <PaginationItem>
                     <PaginationEllipsis />
                   </PaginationItem>
@@ -413,28 +493,30 @@ function DashboardContent() {
                   <PaginationItem>
                     <PaginationLink
                       href="#"
-                      onClick={() => setPageNumber(totalPages - 1)}
+                      onClick={() => setPageNumber(filteredTotalPages - 1)}
                     >
-                      {totalPages - 1}
+                      {filteredTotalPages - 1}
                     </PaginationLink>
                   </PaginationItem>
                 )}
                 <PaginationItem>
                   <PaginationLink
                     href="#"
-                    onClick={() => setPageNumber(totalPages)}
+                    onClick={() => setPageNumber(filteredTotalPages)}
                   >
-                    {totalPages}
+                    {filteredTotalPages}
                   </PaginationLink>
                 </PaginationItem>
                 {/* next page */}
-                {pageNumber < totalPages && (
+                {pageNumber < filteredTotalPages && (
                   <PaginationItem>
                     <PaginationNext
                       // href="#"
                       className="cursor-pointer"
                       onClick={() =>
-                        setPageNumber(Math.min(totalPages, pageNumber + 1))
+                        setPageNumber(
+                          Math.min(filteredTotalPages, pageNumber + 1)
+                        )
                       }
                     />
                   </PaginationItem>

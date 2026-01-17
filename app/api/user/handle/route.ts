@@ -10,7 +10,7 @@ export async function GET() {
   }
 
   let userHandle: string | null;
-  console.log("Fetched user Id:", userId);
+  // console.log("Fetched user Id:", userId);
   try {
     const res = await prisma.user.findUnique({
       where: { id: userId },
@@ -18,7 +18,7 @@ export async function GET() {
     });
 
     userHandle = res?.userHandle || null;
-    console.log(JSON.stringify(res, null, 2));
+    // console.log(JSON.stringify(res, null, 2));
 
     if (!userHandle) {
       throw new Error("User handle not found");

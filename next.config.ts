@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
         "*",
         "localhost:3000",
         "https://cf-tracker-nine.vercel.app/",
-        "https://47b008753430.ngrok-free.app/",
+        "387dec79031c.ngrok-free.app",
       ],
     },
   },
