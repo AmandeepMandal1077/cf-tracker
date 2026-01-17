@@ -7,7 +7,7 @@ export const maxDuration = 60;
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ questionId: string }> }
+  { params }: { params: Promise<{ questionId: string }> },
 ) {
   const { userId } = await auth();
 
@@ -20,7 +20,7 @@ export async function GET(
   const { questionId } = await params;
   const url = `https://codeforces.com/problemset/problem/${questionId.replace(
     "_",
-    "/"
+    "/",
   )}`;
 
   // Need optimization
@@ -45,7 +45,7 @@ export async function GET(
       } catch (err) {
         return new Response(
           JSON.stringify({ error: `Error scraping question: ${err}` }),
-          { status: 500 }
+          { status: 500 },
         );
       }
       await prisma.questionBank.update({
@@ -67,7 +67,7 @@ export async function GET(
   } catch (err) {
     return new Response(
       JSON.stringify({ error: `Error fetching question: ${err}` }),
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
