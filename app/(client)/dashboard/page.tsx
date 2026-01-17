@@ -47,8 +47,8 @@ async function getUserQuestions() {
     const { userHandle } = res.data;
     const response = await axios.get(
       `https://codeforces.com/api/user.status?handle=${encodeURIComponent(
-        userHandle
-      )}`
+        userHandle,
+      )}`,
     );
 
     if (response.data.status !== "OK") {
@@ -80,7 +80,7 @@ function DashboardContent() {
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filteredQuestions, setFilteredQuestions] = useState<typeof questions>(
-    []
+    [],
   );
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
   const totalPages = Math.ceil(totalQuestions / MAX_PER_PAGE_QUESTION);
@@ -116,7 +116,7 @@ function DashboardContent() {
         throw new Error("Error removing question");
       }
     },
-    [pageNumber, dispatch]
+    [pageNumber, dispatch],
   );
 
   const handleQuestionAdd = useCallback(async () => {
@@ -157,7 +157,7 @@ function DashboardContent() {
       const response = await axios.get(`/api/questions/?page=${pageNumber}`);
       if (response.status !== 200) {
         throw new Error(
-          `Failed to fetch questions after sync: ${response.status}`
+          `Failed to fetch questions after sync: ${response.status}`,
         );
       }
       dispatch(setQuestionsInStore(response.data.questions));
@@ -235,7 +235,7 @@ function DashboardContent() {
     dispatch(toggleBookmarkInQuestion(questionId));
     try {
       const response = await axios.patch(
-        `api/questions/${questionId}/bookmark`
+        `api/questions/${questionId}/bookmark`,
       );
       if (response.status !== 200) {
         throw new Error(`Failed to toggle bookmark: ${response.status}`);
@@ -355,7 +355,7 @@ function DashboardContent() {
           {filteredQuestions
             .slice(
               (pageNumber - 1) * MAX_PER_PAGE_QUESTION,
-              pageNumber * MAX_PER_PAGE_QUESTION
+              pageNumber * MAX_PER_PAGE_QUESTION,
             )
             .map((q) => (
               <QuestionCard
@@ -393,7 +393,7 @@ function DashboardContent() {
                 )}
                 {Array.from(
                   { length: filteredTotalPages },
-                  (_, i) => i + 1
+                  (_, i) => i + 1,
                 ).map((i) => (
                   <PaginationItem key={i}>
                     <PaginationLink href="#" onClick={() => setPageNumber(i)}>
@@ -409,7 +409,7 @@ function DashboardContent() {
                       className="cursor-pointer"
                       onClick={() =>
                         setPageNumber(
-                          Math.min(filteredTotalPages, pageNumber + 1)
+                          Math.min(filteredTotalPages, pageNumber + 1),
                         )
                       }
                     />
@@ -457,8 +457,8 @@ function DashboardContent() {
                       setPageNumber(
                         Math.min(
                           filteredTotalPages - 3,
-                          Math.max(3, pageNumber)
-                        )
+                          Math.max(3, pageNumber),
+                        ),
                       )
                     }
                   >
@@ -473,14 +473,14 @@ function DashboardContent() {
                       setPageNumber(
                         Math.min(
                           filteredTotalPages - 2,
-                          Math.max(4, pageNumber + 1)
-                        )
+                          Math.max(4, pageNumber + 1),
+                        ),
                       )
                     }
                   >
                     {Math.min(
                       filteredTotalPages - 2,
-                      Math.max(4, pageNumber + 1)
+                      Math.max(4, pageNumber + 1),
                     )}
                   </PaginationLink>
                 </PaginationItem>
@@ -515,7 +515,7 @@ function DashboardContent() {
                       className="cursor-pointer"
                       onClick={() =>
                         setPageNumber(
-                          Math.min(filteredTotalPages, pageNumber + 1)
+                          Math.min(filteredTotalPages, pageNumber + 1),
                         )
                       }
                     />
