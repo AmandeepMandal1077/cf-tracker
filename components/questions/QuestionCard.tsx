@@ -40,7 +40,7 @@ export default function QuestionCard({
 }: QuestionCardProps) {
   const router = useRouter();
   const isDeleting = useAppSelector((state) =>
-    selectIsQuestionDeleting(state, q.questionId)
+    selectIsQuestionDeleting(state, q.questionId),
   );
 
   return (
@@ -93,7 +93,7 @@ export default function QuestionCard({
             <Badge
               variant="outline"
               className={`${getRatingBadgeClass(
-                Number(q.question.rating)
+                Number(q.question.rating),
               )} text-xs sm:text-sm`}
             >
               {q.question.rating}

@@ -55,7 +55,7 @@ export default function ProblemInfoCard({
                 <Badge
                   variant="outline"
                   className={`${getRatingBadgeClass(
-                    Number(question.question.rating)
+                    Number(question.question.rating),
                   )} text-sm`}
                 >
                   <Award className="h-3 w-3 mr-1.5" />
@@ -102,7 +102,7 @@ export default function ProblemInfoCard({
           <Badge
             variant="outline"
             className={`${getVerdictColor(
-              question.verdict
+              question.verdict,
             )} text-base px-4 py-2 font-medium border`}
           >
             {question.verdict.replace(/_/g, " ")}
