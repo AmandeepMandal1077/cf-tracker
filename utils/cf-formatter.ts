@@ -25,8 +25,11 @@ export function codeforcesDescriptionFormat(rawString: string) {
   let cursor = 0;
   let body = "";
   const MATH_DELIM = "$$$";
+  const MULTILINE_MATH_DELIM = "$$$$$$";
 
+  rawString = rawString.replaceAll(MULTILINE_MATH_DELIM, () => MATH_DELIM);
   rawString = escapeKatexSpecialSymbol(rawString);
+
   while (cursor < rawString.length) {
     const start = rawString.indexOf(MATH_DELIM, cursor);
 
