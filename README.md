@@ -21,11 +21,22 @@ A sleek, minimalist Codeforces upsolving companion that helps you manage and con
    ```
 
 3. Set up your environment variables:
-
    - Copy `example.env` to `.env`
    - Add your Neon database connection string to `DATABASE_URL`
    - Add your Clerk authentication keys
    - Add your Gemini API key for AI code analysis
+
+   ### Dev / Test credentials
+   - You can configure an optional test account for fast local sign-in without needing OTP or email verification (useful for development).
+   - Add the following to your `.env` (or `NEXT_PUBLIC_` variants in `example.env`) and set the password locally:
+
+   ```
+   NEXT_PUBLIC_TEST_EMAIL=mandalamandeep@gmail.com
+   NEXT_PUBLIC_TEST_HANDLE=Eclipse1077
+   NEXT_PUBLIC_TEST_PASSWORD=your_local_test_password
+   ```
+
+   After setting these, the sign-in page will show a "Use test credentials" button to autofill and submit the form.
 
 4. Set up the database:
 
